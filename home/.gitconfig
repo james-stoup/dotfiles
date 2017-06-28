@@ -1,0 +1,33 @@
+[user]
+	email = jrstoup@gmail.com
+	name = James Stoup
+
+[core]
+	editor = emacs
+	autocrlf = input
+	safecrlf = true
+	excludesfile = ~/.gitignore_global
+
+[color]
+	ui = always
+
+[push]
+	default = simple
+
+[credential]
+	helper = cache --timeout=36000
+
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
+
+[alias]
+	co = checkout
+	stage = add
+	switch = checkout
+	unstage = reset HEAD
+	delete = branch -d
+        ll       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+        ls       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+        ldr      = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+        lds      = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+	df	 = "!f() { git diff "$1^" "$1"; echo ''; }; f "
