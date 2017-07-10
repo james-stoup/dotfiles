@@ -5,19 +5,17 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
-### Source location specific configs
-source "$HOME/.bashrc_extras"
 
 ### Homeshick
 source "$HOME/.homesick/repos/homeshick/homeshick.sh"
 source "$HOME/.homesick/repos/homeshick/completions/homeshick-completion.bash"
 
 ### Go Environment Variables
-export GOPATH=/home/jstoup/dev
+export GOPATH=~/go
 export GOBIN=$GOPATH/bin
 export GOROOT=/usr/local/go
 
-export PATH=$PATH:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/jstoup/bin:$GOROOT/bin:/bin:$GOBIN
+export PATH=$PATH:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:~/bin:$GOROOT/bin:/bin:$GOBIN
 
 ### aliases 
 alias resource='source ~/.bashrc'

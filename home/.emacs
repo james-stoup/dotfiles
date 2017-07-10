@@ -4,16 +4,34 @@
 ;; enable visual feedback on selections
 ;;(setq transient-mark-mode t)
 
+
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
+ '(custom-enabled-themes (quote (whiteboard)))
  '(inhibit-startup-screen t)
+ '(package-selected-packages
+   (quote
+    (flycheck flymake-go go-dlv exec-path-from-shell web-beautify multiple-cursors magit govet golint go-mode go-gopath go-autocomplete)))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(visible-bell t))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(default ((t (:family "DejaVu Sans Mono" :foundry "unknown" :slant normal :weight normal :height 98 :width normal)))))
 
 ;; default to better frame titles
 (setq frame-title-format
@@ -25,8 +43,23 @@
 
 ;;; Packages ;;;
 (require 'package)
-(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/") t)
+
+(setenv "GOPATH" "/home/breezy/go")
+(add-to-list 'exec-path "/home/breezy/go/bin")
+
+;;; Go Docs ;;;
+(defun set-exec-path-from-shell-PATH ()
+  (let ((path-from-shell (replace-regexp-in-string
+                          "[ \t\n]*$"
+                          ""
+                          (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
+    (setenv "PATH" path-from-shell)
+    (setq eshell-path-env path-from-shell) ; for eshell users
+    (setq exec-path (split-string path-from-shell path-separator))))
+
+(when window-system (set-exec-path-from-shell-PATH))
 
 
 ;;; Multiple Cursors ;;;
@@ -36,6 +69,8 @@
 ;;; Magit ;;;
 (global-set-key (kbd "C-x C-m") 'magit-status)
 
+;;; Flycheck ;;;
+(add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;;; Golang :::
 ;; Go linter
@@ -46,6 +81,9 @@
 (defun auto-complete-for-go ()
   (auto-complete-mode 1))
 (add-hook 'go-mode-hook 'auto-complete-for-go)
+
+(with-eval-after-load 'go-mode
+  (require 'go-autocomplete))
 
 ;; Call Gofmt before saving
 (add-hook 'before-save-hook 'gofmt-before-save)
