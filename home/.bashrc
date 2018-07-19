@@ -65,3 +65,8 @@ function _prompt_command() {
 PROMPT_COMMAND=_prompt_command
 
 
+### Pyenv stuff for multi versions of python
+export PATH="/home/breezy/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
