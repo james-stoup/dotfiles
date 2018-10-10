@@ -11,6 +11,8 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
+(setq-default tab-width 4)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -21,7 +23,7 @@
  '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-    (flycheck flymake-go go-dlv exec-path-from-shell web-beautify multiple-cursors magit govet golint go-mode go-gopath go-autocomplete)))
+	(elpy format-all importmagic jedi json-reformat py-import-check groovy-mode flycheck-gradle gradle-mode ac-html ac-html-csswatcher rjsx-mode anaconda-mode pyenv-mode pyenv-mode-auto pyimport pyimpsort helm company-emacs-eclim eclim indium java-file-create meghanada thread-dump java-imports javadoc-lookup javap-mode mvn mvn-help requirejs javaimp flycheck flymake-go go-dlv exec-path-from-shell web-beautify multiple-cursors magit govet golint go-mode go-gopath go-autocomplete)))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(visible-bell t))
@@ -49,6 +51,39 @@
 (setenv "GOPATH" "/home/breezy/go")
 (add-to-list 'exec-path "/home/breezy/go/bin")
 
+
+;; Eclim Mode for Java files ;;
+(setq eclim-executable "/opt/eclipse/eclim")
+(require 'eclim)
+(add-hook 'java-mode-hook 'eclim-mode)
+(require 'company)
+(global-company-mode t)
+(require 'company-emacs-eclim)
+(company-emacs-eclim-setup)
+
+
+
+;; Require JS ;;
+;;(setq requirejs-require-base "~/path/to/your/project")
+;;(requirejs-add-alias "jquery" "$" "path/to/jquery-<version>.js")
+
+(add-hook 'js2-mode-hook
+          '(lambda ()
+             (local-set-key [(super a) ?s ?r ] 'requirejs-sort-require-paths)
+             (local-set-key [(super a) ?a ?r ] 'requirejs-add-to-define)
+             (local-set-key [(super a) ?r ?j ] 'requirejs-jump-to-module)
+             ))
+
+(setq requirejs-define-header-hook
+      '(lambda ()
+         (insert
+          (format "// (c) Copyright %s ACME, Inc.  All rights reserved.\n"
+                  (format-time-string "%Y")))))
+;; end Require JS ;;
+
+
+
+
 ;;; Go Docs ;;;
 (defun set-exec-path-from-shell-PATH ()
   (let ((path-from-shell (replace-regexp-in-string
@@ -65,6 +100,8 @@
 ;;; Multiple Cursors ;;;
 (global-set-key (kbd "C-x C-j") 'mc/mark-all-like-this-dwim)
 
+;;; Java ;;;
+(global-set-key (kbd "C-c C-j") 'eclim-java-find-declaration)
 
 ;;; Magit ;;;
 (global-set-key (kbd "C-x C-m") 'magit-status)
@@ -153,3 +190,19 @@
   '(add-hook 'css-mode-hook
 	     (lambda ()
 	       (add-hook 'before-save-hook 'web-beautify-css-buffer t t))))
+
+
+;; Python stuff
+(require 'pyimpsort)
+(eval-after-load 'python
+  '(define-key python-mode-map "\C-c\C-u" #'pyimpsort-buffer))
+
+
+
+;; json formatter 
+(defun json-format ()
+(interactive)
+(save-excursion
+(shell-command-on-region (mark) (point) "python -m json.tool" (buffer-name) t)
+)
+)

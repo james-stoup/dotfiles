@@ -10,16 +10,32 @@ fi
 source "$HOME/.homesick/repos/homeshick/homeshick.sh"
 source "$HOME/.homesick/repos/homeshick/completions/homeshick-completion.bash"
 
+### Bash auto completion
+source /etc/profile.d/bash_completion.sh
+
+### Gradle auto completion
+source $HOME/bash_completion.d/gradle-completion.bash
+
+### Git auto completion
+source ~/.git-completion.bash
+
 ### Go Environment Variables
 export GOPATH=~/go
 export GOBIN=$GOPATH/bin
 export GOROOT=/usr/local/go
 
-export PATH=$PATH:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:~/bin:$GOROOT/bin:/bin:$GOBIN
+### Java
+export JAVA_BIN=/usr/java/latest/bin
+
+export PATH=$PATH:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:~/bin:$GOROOT/bin:/bin:$GOBIN:$JAVA_BIN
+
+### Java Environment Variables
+export JAVA_HOME="/usr/java/latest"
 
 ### aliases 
 alias resource='source ~/.bashrc'
-
+alias im='cd ~/ion-suite/modules/'
+alias sid='ssh ion_dev@james-dev-server'
 
 ### Print the test coverage stats for each function in Go
 function _gofuncstats {
@@ -65,8 +81,12 @@ function _prompt_command() {
 PROMPT_COMMAND=_prompt_command
 
 
-### Pyenv stuff for multi versions of python
-export PATH="/home/breezy/.pyenv/bin:$PATH"
+# Used for multiple python versions
+export PATH="~/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/jstoup/.sdkman"
+[[ -s "/home/jstoup/.sdkman/bin/sdkman-init.sh" ]] && source "/home/jstoup/.sdkman/bin/sdkman-init.sh"
 

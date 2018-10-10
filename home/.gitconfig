@@ -4,15 +4,10 @@
 
 [core]
 	editor = emacs
-	autocrlf = input
-	safecrlf = true
 	excludesfile = ~/.gitignore_global
 
 [color]
-	ui = always
-
-[push]
-	default = simple
+	ui = auto
 
 [credential]
 	helper = cache --timeout=36000
@@ -20,14 +15,33 @@
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
 
+[merge]
+        ff = false
+
 [alias]
-	co = checkout
-	stage = add
-	switch = checkout
-	unstage = reset HEAD
-	delete = branch -d
-        ll       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
-        ls       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
-        ldr      = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
-        lds      = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
-	df	 = "!f() { git diff "$1^" "$1"; echo ''; }; f "
+    co       = checkout
+    stage    = add
+    switch   = checkout
+    unstage  = reset HEAD
+    delete   = branch -d
+
+    ll       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+    ls       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
+    ldr      = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
+    lds      = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+	
+    df       = "!f() { git diff "$1^" "$1"; echo ''; }; f "
+    dff      = "!f() { git diff -w "$1^" "$1"; echo ''; }; f "
+
+    tags     = "!f() { git for-each-ref --sort=taggerdate --format=\"%(refname:short)|%(taggerdate:short)|%(taggername)|%(subject)\" refs/tags | column -ts '|'; }; f "
+
+    lg       = !"git lg1"
+    lg1      = !"git lg1-specific --all"
+    lg2      = !"git lg2-specific --all"
+    lg3      = !"git lg3-specific --all"
+
+    lg1-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
+    lg2-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
+    lg3-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
+
+    show-unmerged = "!f() { git for-each-ref --sort=-committerdate --format=\"%(committerdate:short)\t%(refname:short)\" $(git branch -r --no-merged origin/dev-branch | sed -e 's#^ *#refs/remotes/#');  }; f "

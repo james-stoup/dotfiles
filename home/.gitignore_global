@@ -256,6 +256,21 @@ pip-log.txt
 KLE/KLE/bin/Debug/*
 *.suo
 # Spec Files
-*.spec
+#*.spec
 *.count
+
+#eclipse
+workbench.xmi
+
+# java
+javadocs
+
+
+##########
+# Gradle #
+##########
+.gradle
+build/
+
+scripts/version.json
 
