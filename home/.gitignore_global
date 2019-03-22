@@ -274,3 +274,8 @@ build/
 
 scripts/version.json
 
+/nbproject
+build.xml
+
+# emacs markdown stuff
+flymd.*
