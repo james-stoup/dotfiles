@@ -37,7 +37,7 @@
  '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-	(pyimport flymd markdown-mode markdown-mode+ markdown-preview-eww async elpy format-all importmagic jedi json-reformat py-import-check groovy-mode flycheck-gradle gradle-mode ac-html ac-html-csswatcher rjsx-mode anaconda-mode pyenv-mode pyenv-mode-auto helm indium java-file-create meghanada thread-dump java-imports javadoc-lookup javap-mode mvn mvn-help requirejs javaimp flycheck flymake-go go-dlv exec-path-from-shell web-beautify multiple-cursors govet go-mode go-gopath go-autocomplete)))
+	(pyflakes pyimport flymd markdown-mode markdown-mode+ markdown-preview-eww async elpy format-all importmagic jedi json-reformat py-import-check groovy-mode flycheck-gradle gradle-mode ac-html ac-html-csswatcher rjsx-mode anaconda-mode pyenv-mode pyenv-mode-auto helm indium java-file-create meghanada thread-dump java-imports javadoc-lookup javap-mode mvn mvn-help requirejs javaimp flycheck flymake-go go-dlv exec-path-from-shell web-beautify multiple-cursors govet go-mode go-gopath go-autocomplete)))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(visible-bell t))
@@ -130,9 +130,14 @@
 
 
 ;;; Python stuff ;;;
-;;(require 'pyimpsort)
-;;(eval-after-load 'python
-;;  '(define-key python-mode-map "\C-c\C-u" #'pyimpsort-buffer))
+(require 'pyimpsort)
+(eval-after-load 'python
+  '(define-key python-mode-map "\C-c\C-u" #'pyimpsort-buffer))
+			 
+(eval-after-load 'python
+    '(add-hook 'python-mode-hook
+			 (lambda ()
+			   (add-hook 'before-save-hook #'pyimpsort-buffer t t))))
 
 
 
