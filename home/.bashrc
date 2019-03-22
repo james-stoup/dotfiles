@@ -5,6 +5,9 @@ if [ -f /etc/bashrc ]; then
 	. /etc/bashrc
 fi
 
+##########################
+# VARIABLES & SOURCING
+##########################
 
 ### Homeshick
 source "$HOME/.homesick/repos/homeshick/homeshick.sh"
@@ -16,40 +19,43 @@ source /etc/profile.d/bash_completion.sh
 ### Gradle auto completion
 source $HOME/bash_completion.d/gradle-completion.bash
 
-### Git auto completion
-source ~/.git-completion.bash
-
-### Go Environment Variables
-export GOPATH=~/go
-export GOBIN=$GOPATH/bin
-export GOROOT=/usr/local/go
-
-### Java
-export JAVA_BIN=/usr/java/latest/bin
-
-export PATH=$PATH:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:~/bin:$GOROOT/bin:/bin:$GOBIN:$JAVA_BIN
-
 ### Java Environment Variables
-export JAVA_HOME="/usr/java/latest"
+export JAVA_HOME="/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.191.b12-1.el7_6.x86_64/"
+export JAVA_BIN="$JAVA_HOME/bin"
 
-### aliases 
+### The all important path
+export PATH=$PATH:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:~/bin:/bin:$JAVA_BIN
+
+### Used for multiple python versions
+export PATH="~/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+
+##########################
+# ALIASES
+##########################
 alias resource='source ~/.bashrc'
+alias userlist="eval getent passwd {$(awk '/^UID_MIN/ {print $2}' /etc/login.defs)..$(awk '/^UID_MAX/ {print $2}' /etc/login.defs)} | cut -d: -f1"
+alias chownjs="sudo chown jstoup:jstoup *"
+alias less='less -R' #need this so colorized text displays correctly
+
 alias im='cd ~/ion-suite/modules/'
 alias sid='ssh ion_dev@james-dev-server'
-
-### Print the test coverage stats for each function in Go
-function _gofuncstats {
-    go tool cover -func="$1"
-}
-alias gofuncstats='_gofuncstats'
-
+alias sir='ssh jstoup@rpm-server'
+alias isd='cd /home/jstoup/ION/ion-suite'
+alias iwd='cd /home/jstoup/ION/ion-websites'
 
 ### grepsmall returns just the salient value pulled from grep, not the entire file
 function _grepsmall {
-    grep -E -o ".{0,30}$1.{0,30}" *
+    grep -E -o ".{0,30}$1.{0,30}" * | sed 's/:/:  /'
 }
 alias grepsmall='_grepsmall'
 
+
+##########################
+# GIT PROMPT
+##########################
 
 ### Enhancing bash for git usage
 function _git_prompt() {
@@ -81,12 +87,5 @@ function _prompt_command() {
 PROMPT_COMMAND=_prompt_command
 
 
-# Used for multiple python versions
-export PATH="~/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/jstoup/.sdkman"
-[[ -s "/home/jstoup/.sdkman/bin/sdkman-init.sh" ]] && source "/home/jstoup/.sdkman/bin/sdkman-init.sh"
 
