@@ -37,7 +37,56 @@
  '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-	(pyflakes pyimport flymd markdown-mode markdown-mode+ markdown-preview-eww async elpy format-all importmagic jedi json-reformat py-import-check groovy-mode flycheck-gradle gradle-mode ac-html ac-html-csswatcher rjsx-mode anaconda-mode pyenv-mode pyenv-mode-auto helm indium java-file-create meghanada thread-dump java-imports javadoc-lookup javap-mode mvn mvn-help requirejs javaimp flycheck flymake-go go-dlv exec-path-from-shell web-beautify multiple-cursors govet go-mode go-gopath go-autocomplete)))
+	(
+     ace-window
+     ac-html
+     ac-html-csswatcher
+     anaconda-mode
+     async
+     blacken
+     elpy
+     exec-path-from-shell
+     flycheck
+     flycheck-gradle
+     flymake-go
+     flymd
+     format-all
+     gh-md
+     go-autocomplete
+     go-dlv
+     go-gopath
+     go-mode
+     govet
+     gradle-mode
+     groovy-mode
+     helm
+     importmagic
+     indium
+     isortify
+     javadoc-lookup
+     java-file-create
+     javaimp
+     java-imports
+     javap-mode
+     jedi
+     json-reformat
+     markdown-mode
+     markdown-mode+
+     markdown-preview-eww
+     markdown-preview-mode
+     meghanada
+     multiple-cursors
+     mvn
+     mvn-help
+     pyenv-mode
+     pyenv-mode-auto
+     pyflakes
+     pyimport
+     py-import-check
+     requirejs
+     rjsx-mode
+     thread-dump
+     web-beautify)))
  '(show-paren-mode t)
  '(tool-bar-mode nil)
  '(visible-bell t))
@@ -69,7 +118,7 @@
 ;; end Require JS ;;
 
 
-(when window-system (set-exec-path-from-shell-PATH))
+;;(when window-system (set-exec-path-from-shell-PATH))
 
 
 ;;; Multiple Cursors ;;;
@@ -130,15 +179,10 @@
 
 
 ;;; Python stuff ;;;
-(require 'pyimpsort)
-(eval-after-load 'python
-  '(define-key python-mode-map "\C-c\C-u" #'pyimpsort-buffer))
-			 
-(eval-after-load 'python
-    '(add-hook 'python-mode-hook
-			 (lambda ()
-			   (add-hook 'before-save-hook #'pyimpsort-buffer t t))))
+(add-hook 'python-mode-hook 'blacken-mode)
 
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)                 ; optional
 
 
 ;; json formatter
@@ -151,5 +195,9 @@
 
 ;; preview markdown files
 (defalias 'pmd 'flymd-flyit)
+
+
+;; Handle pane navigation
+(global-set-key (kbd "M-o") 'ace-window)
 
 

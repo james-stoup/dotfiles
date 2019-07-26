@@ -31,6 +31,10 @@ export PATH="~/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
+### History format
+HISTTIMEFORMAT=' %a %B %d | [%T] | '
+
+
 
 ##########################
 # ALIASES
@@ -45,6 +49,8 @@ alias sid='ssh ion_dev@james-dev-server'
 alias sir='ssh jstoup@rpm-server'
 alias isd='cd /home/jstoup/ION/ion-suite'
 alias iwd='cd /home/jstoup/ION/ion-websites'
+
+alias bld='cd /home/jstoup/ION/ion-suite/scripts/dev; ./build_ion.py; ./consolidateWars; cd -'
 
 ### grepsmall returns just the salient value pulled from grep, not the entire file
 function _grepsmall {
@@ -89,3 +95,4 @@ PROMPT_COMMAND=_prompt_command
 
 
 
+export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.212.b04-0.el7_6.x86_64/jre
