@@ -29,6 +29,8 @@ export JAVA_BIN=/usr/java/latest/bin
 
 export PATH=$PATH:/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:~/bin:$GOROOT/bin:/bin:$GOBIN:$JAVA_BIN
 
+export PATH=~/.npm-global/bin:$PATH
+
 ### Java Environment Variables
 export JAVA_HOME="/usr/java/latest"
 
@@ -36,6 +38,7 @@ export JAVA_HOME="/usr/java/latest"
 alias resource='source ~/.bashrc'
 alias im='cd ~/ion-suite/modules/'
 alias sid='ssh ion_dev@james-dev-server'
+alias less='less -R'
 
 ### Print the test coverage stats for each function in Go
 function _gofuncstats {
@@ -54,7 +57,8 @@ alias grepsmall='_grepsmall'
 ### Enhancing bash for git usage
 function _git_prompt() {
     local git_status="`git status -unormal 2>&1`"
-    if ! [[ "$git_status" =~ Not\ a\ git\ repo ]]; then
+    #if ! [[ "$git_status" =~ Not\ a\ git\ repo ]]; then
+	if ! [[ "$git_status" =~ fatal:\ not\ a\ git\ repo ]]; then # must have for newer versions of git
         if [[ "$git_status" =~ nothing\ to\ commit ]]; then
             local ansi=42
         elif [[ "$git_status" =~ nothing\ added\ to\ commit\ but\ untracked\ files\ present ]]; then
@@ -74,8 +78,19 @@ function _git_prompt() {
     fi
 }
 
+_vpn_prompt() {
+    local vpn_status=`nordvpn status | grep Status | cut -d ":" -f2`
+    if [[ "$vpn_status" == " Connected" ]]; then
+        echo -n "(\[\033[0;32m\]\u - \t\[\033[0;30m\])\n  [\[\033[0;34m\]\w\[\033[0;30m\]]\$ "        
+    else
+        echo -n "(\[\033[0;31m\]\u - \t\[\033[0;30m\])\n  [\[\033[0;34m\]\w\[\033[0;30m\]]\$ "        
+    fi
+    
+}
+
 function _prompt_command() {
-    PS1="`_git_prompt`"'(\[\033[0;31m\]\u - \t\[\033[0;30m\])\n  [\[\033[0;34m\]\w\[\033[0;30m\]]\$ '
+    #PS1="`_git_prompt`"'(\[\033[0;31m\]\u - \t\[\033[0;30m\])\n  [\[\033[0;34m\]\w\[\033[0;30m\]]\$ '
+    PS1="`_git_prompt``_vpn_prompt`"
 }
 
 PROMPT_COMMAND=_prompt_command
@@ -89,4 +104,5 @@ eval "$(pyenv virtualenv-init -)"
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/home/jstoup/.sdkman"
 [[ -s "/home/jstoup/.sdkman/bin/sdkman-init.sh" ]] && source "/home/jstoup/.sdkman/bin/sdkman-init.sh"
+
 
