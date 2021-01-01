@@ -5,6 +5,8 @@
 ;;-------------------------------------------------------------------------------------------
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
+(setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
@@ -17,9 +19,17 @@
 ;;-------------------------------------------------------------------------------------------
 (setq column-number-mode t)
 (show-paren-mode 1)
+(setq visible-bell t)
 
 ;;; Multiple Cursors ;;;
 (global-set-key (kbd "C-x C-j") 'mc/mark-all-like-this-dwim)
+
+;; default to better frame titles
+(setq frame-title-format
+      (concat  "%b - emacs@" (system-name)))
+
+;; default to unified diffs
+(setq diff-switches "-u")
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -137,6 +147,8 @@ static char *gnus-pointer[] = {
 ;;-------------------------------------------------------------------------------------------
 ;; PYTHON 
 ;;-------------------------------------------------------------------------------------------
+(setq-default indent-tabs-mode nil)
+
 (add-hook 'python-mode-hook 'blacken-mode)
 (require 'pyimpsort)
 (eval-after-load 'python
@@ -239,38 +251,38 @@ static char *gnus-pointer[] = {
   '(define-key web-mode-map (kbd "C-c b") 'web-beautify-html))
 
 (eval-after-load 'css-mode
-    '(define-key css-mode-map (kbd "C-c b") 'web-beautify-css))
+  '(define-key css-mode-map (kbd "C-c b") 'web-beautify-css))
 
 (eval-after-load 'js2-mode
   '(add-hook 'js2-mode-hook
-	     (lambda ()
-	       (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
+			 (lambda ()
+			   (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
 
 ;; Or if you're using 'js-mode' (a.k.a 'javascript-mode')
 (eval-after-load 'js
   '(add-hook 'js-mode-hook
-	     (lambda ()
-	       (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
+			 (lambda ()
+			   (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
 
 (eval-after-load 'json-mode
   '(add-hook 'json-mode-hook
-	     (lambda ()
-	       (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
+			 (lambda ()
+			   (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
 
 (eval-after-load 'sgml-mode
   '(add-hook 'html-mode-hook
-	     (lambda ()
-	       (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
+			 (lambda ()
+			   (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
 
 (eval-after-load 'web-mode
   '(add-hook 'web-mode-hook
-	     (lambda ()
-	       (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
+			 (lambda ()
+			   (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
 
 (eval-after-load 'css-mode
   '(add-hook 'css-mode-hook
-	     (lambda ()
-	       (add-hook 'before-save-hook 'web-beautify-css-buffer t t))))
+			 (lambda ()
+			   (add-hook 'before-save-hook 'web-beautify-css-buffer t t))))
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -290,6 +302,7 @@ static char *gnus-pointer[] = {
     (setq exec-path (split-string path-from-shell path-separator))))
 
 (when window-system (set-exec-path-from-shell-PATH))
+
 
 ;; Go autocomplete
 (defun auto-complete-for-go ()

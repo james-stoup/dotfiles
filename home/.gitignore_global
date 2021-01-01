@@ -264,7 +264,7 @@ workbench.xmi
 
 # java
 javadocs
-
+.python-version
 
 ##########
 # Gradle #
@@ -274,3 +274,8 @@ build/
 
 scripts/version.json
 
+/nbproject
+build.xml
+
+# emacs markdown stuff
+flymd.*

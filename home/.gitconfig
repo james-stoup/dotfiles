@@ -5,6 +5,7 @@
 [core]
 	editor = emacs
 	excludesfile = ~/.gitignore_global
+	hooksPath = .githooks
 
 [color]
 	ui = auto
@@ -16,32 +17,52 @@
 	insteadOf = https://github.com/
 
 [merge]
-        ff = false
+	# don't do a fast forward merge
+	ff = false
 
 [alias]
-    co       = checkout
-    stage    = add
-    switch   = checkout
-    unstage  = reset HEAD
-    delete   = branch -d
+	# my most used alias
+	co	     = checkout
+	switch   = checkout
+	stage    = add
+	unstage  = reset HEAD
+	delete   = branch -d
 
-    ll       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
-    ls       = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
-    ldr      = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
-    lds      = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
-	
-    df       = "!f() { git diff "$1^" "$1"; echo ''; }; f "
-    dff      = "!f() { git diff -w "$1^" "$1"; echo ''; }; f "
+	# quick log view
+	ls = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate
 
-    tags     = "!f() { git for-each-ref --sort=taggerdate --format=\"%(refname:short)|%(taggerdate:short)|%(taggername)|%(subject)\" refs/tags | column -ts '|'; }; f "
+	# detailed log view
+	ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
 
-    lg       = !"git lg1"
-    lg1      = !"git lg1-specific --all"
-    lg2      = !"git lg2-specific --all"
-    lg3      = !"git lg3-specific --all"
+	# log view, relative date
+	ldr  = log --pretty=format:"%C(yellow)%h%<(3)%C(red)[%ad]\\ %<|(40)\\ %Cblue\\ %cn\\ %<|(60)\\ %Creset\\ %s" --decorate --date=relative  --no-merges
+	ldrl = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=relative
 
-    lg1-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
-    lg2-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
-    lg3-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
+	# log view, standard date
+	ldsl = log --pretty=format:"%C(yellow)%h\\ %ad%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --date=short
+	lds	 = log --pretty=format:"%C(yellow)%h%<(3)%C(red)[%ad]\\ %<|(47)\\ %Cblue\\ %cn\\ %<|(63)\\ %Creset\\ %s" --decorate --no-merges
 
-    show-unmerged = "!f() { git for-each-ref --sort=-committerdate --format=\"%(committerdate:short)\t%(refname:short)\" $(git branch -r --no-merged origin/dev-branch | sed -e 's#^ *#refs/remotes/#');  }; f "
+	# show what changed at a specific hash
+	df	 = "!f() { git diff "$1^" "$1"; echo ''; }; f "
+
+	# show what changed at a specific hash, ignoring white space
+	dff	 = "!f() { git diff -w "$1^" "$1"; echo ''; }; f "
+
+	# list the branches starting with most recently modified 
+	latestremote = for-each-ref --sort=-committerdate --format='%(committerdate:short) %(refname:short)'
+	latestlocal = for-each-ref --sort=-committerdate refs/heads --format='%(committerdate:short) %(refname:short)'
+
+	# various ways of visually showing the log
+	lg    = !"git lg1"
+	lg1	  = !"git lg1-specific --all"
+	lg2	  = !"git lg2-specific --all"
+	lg3	  = !"git lg3-specific --all"
+	lg1-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
+	lg2-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''		  %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
+	lg3-specific = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''		  %C(white)%s%C(reset)%n''		  %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
+
+	# show branches that haven't been merged into dev-branch
+	show-unmerged = "!f() { git for-each-ref --sort=-committerdate --format=\"%(committerdate:short)\t%(refname:short)\" $(git branch -r --no-merged origin/dev-branch | sed -e 's#^ *#refs/remotes/#');  }; f "
+
+	# show all tags in a pretty format
+	tags	 = "!f() { git for-each-ref --sort=taggerdate --format=\"%(refname:short)|%(taggerdate:short)|%(taggername)|%(subject)\" refs/tags | column -ts '|'; }; f "
