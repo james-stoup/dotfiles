@@ -5,8 +5,6 @@
 ;;-------------------------------------------------------------------------------------------
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
-(setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
-
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
 ;; just comment it out by adding a semicolon to the start of the line.
@@ -17,19 +15,47 @@
 ;;-------------------------------------------------------------------------------------------
 ;; DEFAULTS 
 ;;-------------------------------------------------------------------------------------------
-(setq column-number-mode t)
-(show-paren-mode 1)
-(setq visible-bell t)
+(setq column-number-mode t
+      initial-scratch-message nil
+      inhibit-startup-screen t
+      show-paren-mode 1)
 
-;;; Multiple Cursors ;;;
-(global-set-key (kbd "C-x C-j") 'mc/mark-all-like-this-dwim)
+;; show line numbers
+(global-linum-mode)
 
-;; default to better frame titles
-(setq frame-title-format
-      (concat  "%b - emacs@" (system-name)))
+(require 'better-defaults)
+(menu-bar-mode t) 
 
-;; default to unified diffs
-(setq diff-switches "-u")
+;; make PC keyboard's Win key or other to type Super or Hyper, for emacs running on Windows.
+(setq w32-pass-lwindow-to-system nil)
+(setq w32-lwindow-modifier 'super) ; Left Windows key
+
+;;-------------------------------------------------------------------------------------------
+;; HELM (investigate this further)
+;;-------------------------------------------------------------------------------------------
+;; (setq package-list '(better-defaults
+;;                      solarized-theme
+;;                      helm
+;;                      helm-projectile
+;;                      helm-ag))
+
+(require 'ac-helm) ;; Not necessary if using ELPA package
+
+(global-set-key (kbd "M-x") #'helm-M-x)
+;;(global-set-key (kbd "s-f") #'helm-projectile-ag)
+;;(global-set-key (kbd "s-t") #'helm-projectile-find-file-dwim)
+
+(global-set-key (kbd "C-:") 'ac-complete-with-helm)
+(define-key ac-complete-mode-map (kbd "C-:") 'ac-complete-with-helm)
+
+;; Projectile
+(require 'helm-projectile)
+(projectile-global-mode)
+(setq projectile-completion-system 'helm)
+(helm-projectile-on)
+
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -94,7 +120,7 @@ static char *gnus-pointer[] = {
  '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-    (use-package better-defaults hemisu-theme 0blayout hybrid-reverse-theme immaterial-theme material-theme acme-theme afternoon-theme ahungry-theme alect-themes ample-zen-theme apropospriate-theme autumn-light-theme color-theme-sanityinc-tomorrow soft-stone-theme twilight-anti-bright-theme twilight-bright-theme twilight-theme magit auto-complete flycheck-plantuml plantuml-mode auto-complete-rst sphinx-doc sphinx-mode blacken elpy flycheck-pycheckers importmagic jedi pippel pyimpsort python-black python-docstring python-mode yaml-tomato indent-tools yaml-mode ruby-extra-highlight yard-mode enh-ruby-mode format-all rbtagger rubocop rubocopfmt ruby-tools rufo)))
+    (ruby-test-mode ruby-electric seeing-is-believing butler jenkins jenkinsfile-mode use-package better-defaults hemisu-theme 0blayout hybrid-reverse-theme immaterial-theme material-theme acme-theme afternoon-theme ahungry-theme alect-themes ample-zen-theme apropospriate-theme autumn-light-theme color-theme-sanityinc-tomorrow soft-stone-theme twilight-anti-bright-theme twilight-bright-theme twilight-theme magit auto-complete flycheck-plantuml plantuml-mode auto-complete-rst sphinx-doc sphinx-mode blacken elpy flycheck-pycheckers importmagic jedi pippel pyimpsort python-black python-docstring python-mode yaml-tomato indent-tools yaml-mode ruby-extra-highlight yard-mode enh-ruby-mode format-all rbtagger rubocop rubocopfmt ruby-tools rufo)))
  '(pos-tip-background-color "#ffffff")
  '(pos-tip-foreground-color "#78909C")
  '(tabbar-background-color "#ffffff")
@@ -132,23 +158,94 @@ static char *gnus-pointer[] = {
 ;;-------------------------------------------------------------------------------------------
 ;; RUBY
 ;;-------------------------------------------------------------------------------------------
+(setq package-list '(
+		     better-defaults
+                     ruby-electric
+                     seeing-is-believing
+		     rubocopfmt
+		     ruby-test-mode
+		     ))
+
 (require 'rubocopfmt)
-(add-hook 'ruby-mode-hook #'rubocopfmt-mode)
-(setq rubocopfmt-use-bundler-when-possible nil)
-
-;; ruby highlighting
-(add-hook 'ruby-mode-hook #'ruby-extra-highlight-mode)
-
-;; yaml
 (require 'yaml-mode)
-(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+(require 'seeing-is-believing)
+(require 'ruby-test-mode)
+
+(add-hook 'ruby-mode-hook #'rubocopfmt-mode)
+
+;; ruby hooks
+(eval-after-load "ruby-mode"
+  '(progn
+     '(add-hook 'ruby-mode-hook 'ruby-electric-mode)         
+;;     '(add-hook 'ruby-mode-hook 'rubocopfmt-mode)           
+     '(add-hook 'ruby-mode-hook 'ruby-extra-highlight-mode) 
+;;     '(add-hook 'ruby-mode-hook #'rubocopfmt-mode)           
+;;     '(add-hook 'ruby-mode-hook #'ruby-extra-highlight-mode) 
+     '(add-hook 'ruby-mode-hook 'seeing-is-believing)
+     '(add-hook 'ruby-mode-hook 'ruby-test-mode)
+  )
+)
+
+(setq rubocopfmt-use-bundler-when-possible nil) ;; rubocop
+(setq seeing-is-believing-prefix "C-.")         ;; SiB
+
+
+;; yaml files
+(add-to-list 'auto-mode-alist
+	     '("\\.yml\\'" . yaml-mode))
+
+;; treat ruby files that don't end in .rb like ruby anyway
+(add-to-list 'auto-mode-alist
+             '("\\.\\(?:cap\\|gemspec\\|irbrc\\|gemrc\\|rake\\|rb\\|ru\\|thor\\)\\'" . ruby-mode))
+(add-to-list 'auto-mode-alist
+             '("\\(?:Brewfile\\|Capfile\\|Gemfile\\(?:\\.[a-zA-Z0-9._-]+\\)?\\|[rR]akefile\\)\\'" . ruby-mode))
+
+
+;; auto complete
+(add-hook 'enh-ruby-mode-hook 'inf-ruby-minor-mode)
+
+(require 'ac-inf-ruby) ;; when not installed via package.el
+ (eval-after-load 'auto-complete
+ '(add-to-list 'ac-modes 'inf-ruby-mode))
+ (add-hook 'inf-ruby-mode-hook 'ac-inf-ruby-enable)
+
+;; Optionally bind auto-complete to TAB in inf-ruby buffers:
+;; (eval-after-load 'inf-ruby '
+;; '(define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
+
+;; robe
+;; (add-hook 'ruby-mode-hook 'robe-mode)
+;; (add-hook 'robe-mode-hook 'ac-robe-setup)
+
+;; (global-robe-mode)
+
+;; - M-. to jump to the definition
+;; - M-, to jump back
+;; - C-c C-d to see the documentation
+;; - C-c C-k to refresh Rails environment
+;; - C-M-i to complete the symbol at point
+
+
+ (require 'auto-complete-config)
+ (ac-config-default)
+ (setq ac-ignore-case nil)
+ (add-to-list 'ac-modes 'enh-ruby-mode)
+
+
+;; BROKEN
+;; Solargraph
+;; (add-to-list 'load-path "~/.emacs.d/lisp/emacs-solargraph")
+;; (require 'solargraph)
+;; (define-key ruby-mode-map (kbd "M-i") 'solargraph:complete)
+
+;; ;; Solargraph autocomplete setup
+;; (require 'ac-solargraph)
+;; (define-key ruby-mode-map (kbd "M-i") 'ac-solargraph:complete) 
 
 
 ;;-------------------------------------------------------------------------------------------
 ;; PYTHON 
 ;;-------------------------------------------------------------------------------------------
-(setq-default indent-tabs-mode nil)
-
 (add-hook 'python-mode-hook 'blacken-mode)
 (require 'pyimpsort)
 (eval-after-load 'python
@@ -214,130 +311,19 @@ static char *gnus-pointer[] = {
 ;;     (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
 ;;     (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t))))
 
-
 ;;-------------------------------------------------------------------------------------------
-;; JAVASCRIPT
+;; JAVA
 ;;-------------------------------------------------------------------------------------------
-;;(setq requirejs-require-base "~/path/to/your/project")
-;;(requirejs-add-alias "jquery" "$" "path/to/jquery-<version>.js")
-
-(add-hook 'js2-mode-hook
-          '(lambda ()
-             (local-set-key [(super a) ?s ?r ] 'requirejs-sort-require-paths)
-             (local-set-key [(super a) ?a ?r ] 'requirejs-add-to-define)
-             (local-set-key [(super a) ?r ?j ] 'requirejs-jump-to-module)
-             ))
-
-(setq requirejs-define-header-hook
-      '(lambda ()
-         (insert
-          (format "// (c) Copyright %s ACME, Inc.  All rights reserved.\n"
-                  (format-time-string "%Y")))))
-
-;;; js beautify ;;;
-(eval-after-load 'js2-mode
-  '(define-key js2-mode-map (kbd "C-c b") 'web-beautify-js))
-;; Or if you're using 'js-mode' (a.k.a 'javascript-mode')
-(eval-after-load 'js
-  '(define-key js-mode-map (kbd "C-c b") 'web-beautify-js))
-
-(eval-after-load 'json-mode
-  '(define-key json-mode-map (kbd "C-c b") 'web-beautify-js))
-
-(eval-after-load 'sgml-mode
-  '(define-key html-mode-map (kbd "C-c b") 'web-beautify-html))
-
-(eval-after-load 'web-mode
-  '(define-key web-mode-map (kbd "C-c b") 'web-beautify-html))
-
-(eval-after-load 'css-mode
-  '(define-key css-mode-map (kbd "C-c b") 'web-beautify-css))
-
-(eval-after-load 'js2-mode
-  '(add-hook 'js2-mode-hook
-			 (lambda ()
-			   (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
-
-;; Or if you're using 'js-mode' (a.k.a 'javascript-mode')
-(eval-after-load 'js
-  '(add-hook 'js-mode-hook
-			 (lambda ()
-			   (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
-
-(eval-after-load 'json-mode
-  '(add-hook 'json-mode-hook
-			 (lambda ()
-			   (add-hook 'before-save-hook 'web-beautify-js-buffer t t))))
-
-(eval-after-load 'sgml-mode
-  '(add-hook 'html-mode-hook
-			 (lambda ()
-			   (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
-
-(eval-after-load 'web-mode
-  '(add-hook 'web-mode-hook
-			 (lambda ()
-			   (add-hook 'before-save-hook 'web-beautify-html-buffer t t))))
-
-(eval-after-load 'css-mode
-  '(add-hook 'css-mode-hook
-			 (lambda ()
-			   (add-hook 'before-save-hook 'web-beautify-css-buffer t t))))
 
 
 ;;-------------------------------------------------------------------------------------------
 ;; GOLANG
 ;;-------------------------------------------------------------------------------------------
-(setenv "GOPATH" "~/go")
-(add-to-list 'exec-path "~/go/bin")
-
-;;; Go Docs ;;;
-(defun set-exec-path-from-shell-PATH ()
-  (let ((path-from-shell (replace-regexp-in-string
-                          "[ \t\n]*$"
-                          ""
-                          (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-    (setenv "PATH" path-from-shell)
-    (setq eshell-path-env path-from-shell) ; for eshell users
-    (setq exec-path (split-string path-from-shell path-separator))))
-
-(when window-system (set-exec-path-from-shell-PATH))
-
-
-;; Go autocomplete
-(defun auto-complete-for-go ()
-  (auto-complete-mode 1))
-(add-hook 'go-mode-hook 'auto-complete-for-go)
-
-(with-eval-after-load 'go-mode
-  (require 'go-autocomplete))
-
-;; Call Gofmt before saving
-(add-hook 'before-save-hook 'gofmt-before-save)
-
-(defun my-go-mode-hook ()
-  ;; Use goimports instead of go-fmt
-  (setq gofmt-command "goimports")
-
-  ;; Customize compile command to run go build
-  (if (not (string-match "go" compile-command))
-      (set (make-local-variable 'compile-command)
-	   "go build -v && go test -v && go vet"))
-
-  ;; Godef jump key binding
-  (local-set-key (kbd "M-.") 'godef-jump)
-  (local-set-key (kbd "M-[") 'godef-describe)
-  )
-(add-hook 'go-mode-hook 'my-go-mode-hook)
 
 
 ;;-------------------------------------------------------------------------------------------
-;; JSON
+;; install the missing packages
 ;;-------------------------------------------------------------------------------------------
-;; json formatter 
-(defun json-format ()
-  (interactive)
-  (save-excursion
-    (shell-command-on-region (mark) (point) "python -m json.tool" (buffer-name) t)
-    )
-  )
+(dolist (package package-list)
+  (unless (package-installed-p package)
+    (package-install package)))
