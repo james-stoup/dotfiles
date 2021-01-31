@@ -17,6 +17,9 @@
 ;;-------------------------------------------------------------------------------------------
 ;; DEFAULTS 
 ;;-------------------------------------------------------------------------------------------
+;; better defaults
+(require 'better-defaults)
+
 (setq column-number-mode t)
 (show-paren-mode 1)
 (setq visible-bell t)
@@ -30,6 +33,8 @@
 
 ;; default to unified diffs
 (setq diff-switches "-u")
+
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -47,6 +52,7 @@
  '(ansi-term-color-vector
    [unspecified "#FFFFFF" "#d15120" "#5f9411" "#d2ad00" "#6b82a7" "#a66bab" "#6b82a7" "#505050"])
  '(beacon-color "#c82829")
+ '(column-number-mode t)
  '(custom-enabled-themes (quote (material-light)))
  '(custom-safe-themes
    (quote
@@ -97,6 +103,7 @@ static char *gnus-pointer[] = {
     (use-package better-defaults hemisu-theme 0blayout hybrid-reverse-theme immaterial-theme material-theme acme-theme afternoon-theme ahungry-theme alect-themes ample-zen-theme apropospriate-theme autumn-light-theme color-theme-sanityinc-tomorrow soft-stone-theme twilight-anti-bright-theme twilight-bright-theme twilight-theme magit auto-complete flycheck-plantuml plantuml-mode auto-complete-rst sphinx-doc sphinx-mode blacken elpy flycheck-pycheckers importmagic jedi pippel pyimpsort python-black python-docstring python-mode yaml-tomato indent-tools yaml-mode ruby-extra-highlight yard-mode enh-ruby-mode format-all rbtagger rubocop rubocopfmt ruby-tools rufo)))
  '(pos-tip-background-color "#ffffff")
  '(pos-tip-foreground-color "#78909C")
+ '(show-paren-mode t)
  '(tabbar-background-color "#ffffff")
  '(vc-annotate-background nil)
  '(vc-annotate-color-map
@@ -126,7 +133,7 @@ static char *gnus-pointer[] = {
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:family "Source Code Pro" :foundry "ADBO" :slant normal :weight normal :height 113 :width normal)))))
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -179,13 +186,25 @@ static char *gnus-pointer[] = {
 (setq jedi:complete-on-dot t)                 ; optional
 
 ;; Enable elpy
-(elpy-enable)
+;;(elpy-enable)
+;;(add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
+
+(elpy-enable)  
+(setq elpy-rpc-backend "jedi")  
 (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
 
 ;; Enable Flycheck
 (when (require 'flycheck nil t)
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
   (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+;; pipenv
+(use-package pipenv
+  :hook (python-mode . pipenv-mode)
+  :init
+  (setq
+   pipenv-projectile-after-switch-function
+   #'pipenv-projectile-after-switch-extended))
 
 
 ;;-------------------------------------------------------------------------------------------
