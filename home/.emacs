@@ -30,6 +30,66 @@
 (setq w32-pass-lwindow-to-system nil)
 (setq w32-lwindow-modifier 'super) ; Left Windows key
 
+;; Symbol highlighting
+(require 'auto-highlight-symbol)
+(global-auto-highlight-symbol-mode t)
+(require 'highlight-parentheses)
+
+(global-set-key (kbd "C-?") 'flymake-show-diagnostics-buffer)
+
+
+;;-------------------------------------------------------------------------------------------
+;; Solargraph
+;;-------------------------------------------------------------------------------------------
+
+(require 'lsp-mode)
+(add-hook 'ruby-mode-hook #'lsp)
+(global-set-key (kbd "C-c h h") 'lsp-describe-thing-at-point)
+
+;; Redefine the 'super' key to be "C-c C-c" for LSP
+;; The old way works for the moment but once this is upgraded use the new way
+(setq lsp-keymap-prefix "C-c C-c")  ;; OLD WAY
+;;(define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map)) ;; NEW WAY (broken)
+
+
+;(use-package lsp-mode
+;  (define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map))
+;)
+
+;; USE-PACKAGE CONFIG
+;; (use-package lsp-mode
+;;   :init
+;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+;;   (setq lsp-keymap-prefix "C-c l")
+;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+;;          (XXX-mode . lsp)
+;;          ;; if you want which-key integration
+;;          (lsp-mode . lsp-enable-which-key-integration))
+;;   :commands lsp)
+
+;; ;; optionally
+;; (use-package lsp-ui :commands lsp-ui-mode)
+;; ;; if you are helm user
+;; (use-package helm-lsp :commands helm-lsp-workspace-symbol)
+;; ;; if you are ivy user
+;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+;; (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+
+;; ;; optionally if you want to use debugger
+;; (use-package dap-mode)
+;; ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
+
+;; ;; optional if you want which-key integration
+;; (use-package which-key
+;;     :config
+;;     (which-key-mode))
+
+
+
+;; which-key integration with LSP
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+
 ;;-------------------------------------------------------------------------------------------
 ;; HELM (investigate this further)
 ;;-------------------------------------------------------------------------------------------
@@ -47,6 +107,17 @@
 
 (global-set-key (kbd "C-:") 'ac-complete-with-helm)
 (define-key ac-complete-mode-map (kbd "C-:") 'ac-complete-with-helm)
+
+
+;;(autoload 'helm-company "helm-company") ;; Not necessary if using ELPA package
+(eval-after-load 'company
+  '(progn
+     (define-key company-mode-map (kbd "C-:") 'helm-company)
+     (define-key company-active-map (kbd "C-:") 'helm-company)))
+
+
+
+
 
 ;; Projectile
 (require 'helm-projectile)
@@ -158,6 +229,7 @@ static char *gnus-pointer[] = {
 ;;-------------------------------------------------------------------------------------------
 ;; RUBY
 ;;-------------------------------------------------------------------------------------------
+(setq ruby-insert-encoding-magic-comment nil)
 (setq package-list '(
 		     better-defaults
                      ruby-electric
@@ -171,20 +243,30 @@ static char *gnus-pointer[] = {
 (require 'seeing-is-believing)
 (require 'ruby-test-mode)
 
+;; RVM
+(rvm-use-default)
+(global-set-key (kbd "C-c r a") 'rvm-activate-corresponding-ruby)
+
 (add-hook 'ruby-mode-hook #'rubocopfmt-mode)
 
+
+;; Make sure yard-mode starts when ruby-mode does
+(add-hook 'ruby-mode-hook #'yard-mode)
+(add-hook 'ruby-mode-hook #'eldoc-mode)
+(add-hook 'ruby-mode-hook #'which-key-mode)
+
 ;; ruby hooks
-(eval-after-load "ruby-mode"
-  '(progn
-     '(add-hook 'ruby-mode-hook 'ruby-electric-mode)         
-;;     '(add-hook 'ruby-mode-hook 'rubocopfmt-mode)           
-     '(add-hook 'ruby-mode-hook 'ruby-extra-highlight-mode) 
-;;     '(add-hook 'ruby-mode-hook #'rubocopfmt-mode)           
-;;     '(add-hook 'ruby-mode-hook #'ruby-extra-highlight-mode) 
-     '(add-hook 'ruby-mode-hook 'seeing-is-believing)
-     '(add-hook 'ruby-mode-hook 'ruby-test-mode)
-  )
-)
+;; (eval-after-load "ruby-mode"
+;;   '(progn
+;;      '(add-hook 'ruby-mode-hook 'ruby-electric-mode)         
+;;      '(add-hook 'ruby-mode-hook 'ruby-extra-highlight-mode) 
+;; ;;     '(add-hook 'ruby-mode-hook #'ruby-extra-highlight-mode) 
+;;      '(add-hook 'ruby-mode-hook 'seeing-is-believing)
+;;      '(add-hook 'ruby-mode-hook 'ruby-test-mode)
+;;      )
+;; )
+
+
 
 (setq rubocopfmt-use-bundler-when-possible nil) ;; rubocop
 (setq seeing-is-believing-prefix "C-.")         ;; SiB
@@ -200,9 +282,17 @@ static char *gnus-pointer[] = {
 (add-to-list 'auto-mode-alist
              '("\\(?:Brewfile\\|Capfile\\|Gemfile\\(?:\\.[a-zA-Z0-9._-]+\\)?\\|[rR]akefile\\)\\'" . ruby-mode))
 
+;; INF
+;;(autoload 'inf-ruby "inf-ruby" "Run an inferior Ruby process" t)
+;;(add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
+(add-hook 'enh-ruby-mode-hook 'inf-ruby-minor-mode)
+(global-set-key (kbd "C-c r r") 'inf-ruby)
+
+(eval-after-load 'inf-ruby
+'(define-key inf-ruby-minor-mode-map
+(kbd "C-c C-s") 'inf-ruby-console-auto))
 
 ;; auto complete
-(add-hook 'enh-ruby-mode-hook 'inf-ruby-minor-mode)
 
 (require 'ac-inf-ruby) ;; when not installed via package.el
  (eval-after-load 'auto-complete
@@ -210,14 +300,16 @@ static char *gnus-pointer[] = {
  (add-hook 'inf-ruby-mode-hook 'ac-inf-ruby-enable)
 
 ;; Optionally bind auto-complete to TAB in inf-ruby buffers:
-;; (eval-after-load 'inf-ruby '
-;; '(define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
+(eval-after-load 'inf-ruby '
+'(define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
+
 
 ;; robe
-;; (add-hook 'ruby-mode-hook 'robe-mode)
-;; (add-hook 'robe-mode-hook 'ac-robe-setup)
+;;(add-hook 'ruby-mode-hook 'robe-mode)
 
-;; (global-robe-mode)
+;; (add-hook 'robe-mode-hook 'ac-robe-setup)
+;;(custom-set-variables
+;;'(robe-completing-read-func 'helm-robe-completing-read))
 
 ;; - M-. to jump to the definition
 ;; - M-, to jump back
@@ -226,21 +318,42 @@ static char *gnus-pointer[] = {
 ;; - C-M-i to complete the symbol at point
 
 
- (require 'auto-complete-config)
- (ac-config-default)
- (setq ac-ignore-case nil)
- (add-to-list 'ac-modes 'enh-ruby-mode)
+;; syntax checking in ruby
+(require 'flymake-ruby)
+(add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
 
-;; BROKEN
-;; Solargraph
-;; (add-to-list 'load-path "~/.emacs.d/lisp/emacs-solargraph")
-;; (require 'solargraph)
-;; (define-key ruby-mode-map (kbd "M-i") 'solargraph:complete)
+;; auto complete
+(require 'auto-complete-config)
+(ac-config-default)
+(setq ac-ignore-case nil)
+(add-to-list 'ac-modes 'enh-ruby-mode)
 
-;; ;; Solargraph autocomplete setup
-;; (require 'ac-solargraph)
-;; (define-key ruby-mode-map (kbd "M-i") 'ac-solargraph:complete) 
+
+;; Smart Parens
+(require 'smartparens-config)
+(require 'smartparens-ruby)
+(smartparens-global-mode)
+(show-smartparens-global-mode t)
+(sp-with-modes '(rhtml-mode)
+               (sp-local-pair "<" ">")
+               (sp-local-pair "<%" "%>"))
+
+
+;; Flyspell
+(require 'flyspell)
+(setq flyspell-issue-message-flg nil)
+(add-hook 'enh-ruby-mode-hook
+          (lambda () (flyspell-prog-mode)))
+
+(add-hook 'web-mode-hook
+          (lambda () (flyspell-prog-mode)))
+;; flyspell mode breaks auto-complete mode without this.
+(ac-flyspell-workaround)
+
+(require 'flyspell-correct-helm)
+(define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -312,6 +425,40 @@ static char *gnus-pointer[] = {
 ;;     (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t))))
 
 ;;-------------------------------------------------------------------------------------------
+;; Treemacs
+;;-------------------------------------------------------------------------------------------
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-width                         40
+          treemacs-width-is-initially-locked     nil))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t t"   . treemacs)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :after (treemacs dired)
+  :ensure t
+  :config (treemacs-icons-dired-mode))
+
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
+
+
+;;-------------------------------------------------------------------------------------------
 ;; JAVA
 ;;-------------------------------------------------------------------------------------------
 
@@ -321,9 +468,13 @@ static char *gnus-pointer[] = {
 ;;-------------------------------------------------------------------------------------------
 
 
+
+
 ;;-------------------------------------------------------------------------------------------
 ;; install the missing packages
 ;;-------------------------------------------------------------------------------------------
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
+
+
