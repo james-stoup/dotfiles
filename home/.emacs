@@ -1,7 +1,6 @@
 (prefer-coding-system 'utf-8)
 (require 'package)
 
-
 ;;-------------------------------------------------------------------------------------------
 ;; MELPA & GNU
 ;;-------------------------------------------------------------------------------------------
@@ -31,6 +30,8 @@
 (setq use-package-always-ensure t)
 
 (use-package projectile
+
+  
   :ensure t)
 
 (use-package helm
@@ -79,57 +80,6 @@
 (require 'highlight-parentheses)
 
 (global-set-key (kbd "C-?") 'flymake-show-diagnostics-buffer)
-
-
-
-;;-------------------------------------------------------------------------------------------
-;; Solargraph
-;;-------------------------------------------------------------------------------------------
-(require 'lsp-mode)
-(add-hook 'ruby-mode-hook #'lsp)
-(global-set-key (kbd "C-c h h") 'lsp-describe-thing-at-point)
-
-;; which-key integration with LSP
-(with-eval-after-load 'lsp-mode
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
-
-;; Redefine the 'super' key to be "C-c C-c" for LSP
-;; The old way works for the moment but once this is upgraded use the new way
-(setq lsp-keymap-prefix "C-c C-c")  ;; OLD WAY
-;;(define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map)) ;; NEW WAY (broken)
-
-
-
-;;-------------------------------------------------------------------------------------------
-;; HELM (investigate this further)
-;;-------------------------------------------------------------------------------------------
-(require 'ac-helm) ;; Not necessary if using ELPA package
-
-(global-set-key (kbd "M-x") #'helm-M-x)
-;;(global-set-key (kbd "s-f") #'helm-projectile-ag)
-;;(global-set-key (kbd "s-t") #'helm-projectile-find-file-dwim)
-
-(global-set-key (kbd "C-:") 'ac-complete-with-helm)
-(define-key ac-complete-mode-map (kbd "C-:") 'ac-complete-with-helm)
-
-
-;;(autoload 'helm-company "helm-company") ;; Not necessary if using ELPA package
-(eval-after-load 'company
-  '(progn
-     (define-key company-mode-map (kbd "C-:") 'helm-company)
-     (define-key company-active-map (kbd "C-:") 'helm-company)))
-
-
-
-;;-------------------------------------------------------------------------------------------
-;; Projectile
-;;-------------------------------------------------------------------------------------------
-(require 'helm-projectile)
-(projectile-global-mode)
-(setq projectile-completion-system 'helm)
-(helm-projectile-on)
-
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
 
 
@@ -196,7 +146,7 @@ static char *gnus-pointer[] = {
  '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-    (0blayout acme-theme afternoon-theme ahungry-theme alect-themes ample-zen-theme apropospriate-theme auto-complete auto-complete-rst autumn-light-theme better-defaults blacken butler color-theme-sanityinc-tomorrow elpy enh-ruby-mode flycheck-plantuml flycheck-pycheckers format-all hemisu-theme hybrid-reverse-theme immaterial-theme importmagic indent-tools jedi jenkins jenkinsfile-mode magit material-theme pippel plantuml-mode pyimpsort python-black python-docstring python-mode rbtagger rubocop rubocopfmt ruby-electric ruby-extra-highlight ruby-test-mode ruby-tools rufo seeing-is-believing soft-stone-theme sphinx-doc sphinx-mode twilight-anti-bright-theme twilight-bright-theme twilight-theme use-package yaml-mode yaml-tomato yard-mode)))
+    (0blayout acme-theme afternoon-theme ahungry-theme alect-themes ample-zen-theme apropospriate-theme auto-complete auto-complete-rst autumn-light-theme better-defaults blacken butler color-theme-sanityinc-tomorrow elpy enh-ruby-mode flycheck-plantuml flycheck-pycheckers format-all hemisu-theme hybrid-reverse-theme immaterial-theme importmagic indent-tools jedi jenkins jenkinsfile-mode magit material-theme pippel plantuml-mode projectile pyimpsort python-black python-docstring python-mode rbtagger rubocop rubocopfmt ruby-electric ruby-extra-highlight ruby-test-mode ruby-tools rufo seeing-is-believing soft-stone-theme sphinx-doc sphinx-mode twilight-anti-bright-theme twilight-bright-theme twilight-theme use-package which-key yaml-mode yaml-tomato yard-mode)))
  '(pos-tip-background-color "#ffffff")
  '(pos-tip-foreground-color "#78909C")
  '(show-paren-mode t)
@@ -234,6 +184,53 @@ static char *gnus-pointer[] = {
 
 
 ;;-------------------------------------------------------------------------------------------
+;; SOLARGRAPH
+;;-------------------------------------------------------------------------------------------
+(require 'lsp-mode)
+(add-hook 'ruby-mode-hook #'lsp)
+(global-set-key (kbd "C-c h h") 'lsp-describe-thing-at-point)
+
+;; which-key integration with LSP
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+
+;; Redefine the 'super' key to be "C-c C-c" for LSP
+;; The old way works for the moment but once this is upgraded use the new way
+(setq lsp-keymap-prefix "C-c C-c")  ;; OLD WAY
+;;(define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map)) ;; NEW WAY (broken)
+
+
+
+;;-------------------------------------------------------------------------------------------
+;; HELM
+;;-------------------------------------------------------------------------------------------
+(require 'ac-helm) ;; Not necessary if using ELPA package
+
+(global-set-key (kbd "M-x") #'helm-M-x)
+(global-set-key (kbd "C-:") 'ac-complete-with-helm)
+(define-key ac-complete-mode-map (kbd "C-:") 'ac-complete-with-helm)
+
+;;(autoload 'helm-company "helm-company") ;; Not necessary if using ELPA package
+(eval-after-load 'company
+  '(progn
+     (define-key company-mode-map (kbd "C-:") 'helm-company)
+     (define-key company-active-map (kbd "C-:") 'helm-company)))
+
+
+
+;;-------------------------------------------------------------------------------------------
+;; PROJECTILE
+;;-------------------------------------------------------------------------------------------
+(require 'helm-projectile)
+(projectile-global-mode)
+(setq projectile-completion-system 'helm)
+(helm-projectile-on)
+
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+
+
+
+;;-------------------------------------------------------------------------------------------
 ;; RUBY
 ;;-------------------------------------------------------------------------------------------
 (setq ruby-insert-encoding-magic-comment nil)
@@ -260,6 +257,7 @@ static char *gnus-pointer[] = {
 (add-hook 'ruby-mode-hook #'yard-mode)
 (add-hook 'ruby-mode-hook #'eldoc-mode)
 (add-hook 'ruby-mode-hook #'which-key-mode)
+(add-hook 'ruby-mode-hook #'fic-mode) ;; Highlights BUG, TODO, and FIXME
 
 ;; ruby hooks
 ;; (eval-after-load "ruby-mode"
