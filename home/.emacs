@@ -1,6 +1,7 @@
 (prefer-coding-system 'utf-8)
 (require 'package)
 
+
 ;;-------------------------------------------------------------------------------------------
 ;; MELPA & GNU
 ;;-------------------------------------------------------------------------------------------
@@ -12,6 +13,8 @@
 ;; just comment it out by adding a semicolon to the start of the line.
 ;; You may delete these explanatory comments.
 (package-initialize)
+
+
 
 ;;-------------------------------------------------------------------------------------------
 ;; SYSTEM SETUP
@@ -49,6 +52,7 @@
   :ensure t)
 
 
+
 ;;-------------------------------------------------------------------------------------------
 ;; DEFAULTS 
 ;;-------------------------------------------------------------------------------------------
@@ -77,13 +81,17 @@
 (global-set-key (kbd "C-?") 'flymake-show-diagnostics-buffer)
 
 
+
 ;;-------------------------------------------------------------------------------------------
 ;; Solargraph
 ;;-------------------------------------------------------------------------------------------
-
 (require 'lsp-mode)
 (add-hook 'ruby-mode-hook #'lsp)
 (global-set-key (kbd "C-c h h") 'lsp-describe-thing-at-point)
+
+;; which-key integration with LSP
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
 
 ;; Redefine the 'super' key to be "C-c C-c" for LSP
 ;; The old way works for the moment but once this is upgraded use the new way
@@ -91,53 +99,10 @@
 ;;(define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map)) ;; NEW WAY (broken)
 
 
-;(use-package lsp-mode
-;  (define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map))
-;)
-
-;; USE-PACKAGE CONFIG
-;; (use-package lsp-mode
-;;   :init
-;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-;;   (setq lsp-keymap-prefix "C-c l")
-;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-;;          (XXX-mode . lsp)
-;;          ;; if you want which-key integration
-;;          (lsp-mode . lsp-enable-which-key-integration))
-;;   :commands lsp)
-
-;; ;; optionally
-;; (use-package lsp-ui :commands lsp-ui-mode)
-;; ;; if you are helm user
-;; (use-package helm-lsp :commands helm-lsp-workspace-symbol)
-;; ;; if you are ivy user
-;; (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
-;; (use-package lsp-treemacs :commands lsp-treemacs-errors-list)
-
-;; ;; optionally if you want to use debugger
-;; (use-package dap-mode)
-;; ;; (use-package dap-LANGUAGE) to load the dap adapter for your language
-
-;; ;; optional if you want which-key integration
-;; (use-package which-key
-;;     :config
-;;     (which-key-mode))
-
-
-
-;; which-key integration with LSP
-(with-eval-after-load 'lsp-mode
-  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
 
 ;;-------------------------------------------------------------------------------------------
 ;; HELM (investigate this further)
 ;;-------------------------------------------------------------------------------------------
-;; (setq package-list '(better-defaults
-;;                      solarized-theme
-;;                      helm
-;;                      helm-projectile
-;;                      helm-ag))
-
 (require 'ac-helm) ;; Not necessary if using ELPA package
 
 (global-set-key (kbd "M-x") #'helm-M-x)
@@ -156,17 +121,15 @@
 
 
 
-
-
+;;-------------------------------------------------------------------------------------------
 ;; Projectile
+;;-------------------------------------------------------------------------------------------
 (require 'helm-projectile)
 (projectile-global-mode)
 (setq projectile-completion-system 'helm)
 (helm-projectile-on)
 
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
-
 
 
 
@@ -261,12 +224,13 @@ static char *gnus-pointer[] = {
      (360 . "DarkOliveGreen3"))))
  '(vc-annotate-very-old-color nil)
  '(window-divider-mode nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:family "Source Code Pro" :foundry "ADBO" :slant normal :weight normal :height 113 :width normal)))))
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(default ((t (:family "Source Code Pro" :foundry "ADBO" :slant normal :weight normal :height 113 :width normal)))))
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -292,7 +256,6 @@ static char *gnus-pointer[] = {
 
 (add-hook 'ruby-mode-hook #'rubocopfmt-mode)
 
-
 ;; Make sure yard-mode starts when ruby-mode does
 (add-hook 'ruby-mode-hook #'yard-mode)
 (add-hook 'ruby-mode-hook #'eldoc-mode)
@@ -310,10 +273,8 @@ static char *gnus-pointer[] = {
 ;; )
 
 
-
 (setq rubocopfmt-use-bundler-when-possible nil) ;; rubocop
 (setq seeing-is-believing-prefix "C-.")         ;; SiB
-
 
 ;; yaml files
 (add-to-list 'auto-mode-alist
@@ -336,42 +297,24 @@ static char *gnus-pointer[] = {
 (kbd "C-c C-s") 'inf-ruby-console-auto))
 
 ;; auto complete
-
 (require 'ac-inf-ruby) ;; when not installed via package.el
  (eval-after-load 'auto-complete
  '(add-to-list 'ac-modes 'inf-ruby-mode))
  (add-hook 'inf-ruby-mode-hook 'ac-inf-ruby-enable)
 
+;; auto complete
+;; (require 'auto-complete-config)
+;; (ac-config-default)
+;; (setq ac-ignore-case nil)
+;; (add-to-list 'ac-modes 'enh-ruby-mode)
+
 ;; Optionally bind auto-complete to TAB in inf-ruby buffers:
 (eval-after-load 'inf-ruby '
 '(define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
 
-
-;; robe
-;;(add-hook 'ruby-mode-hook 'robe-mode)
-
-;; (add-hook 'robe-mode-hook 'ac-robe-setup)
-;;(custom-set-variables
-;;'(robe-completing-read-func 'helm-robe-completing-read))
-
-;; - M-. to jump to the definition
-;; - M-, to jump back
-;; - C-c C-d to see the documentation
-;; - C-c C-k to refresh Rails environment
-;; - C-M-i to complete the symbol at point
-
-
 ;; syntax checking in ruby
 (require 'flymake-ruby)
 (add-hook 'ruby-mode-hook 'flymake-ruby-load)
-
-
-;; auto complete
-(require 'auto-complete-config)
-(ac-config-default)
-(setq ac-ignore-case nil)
-(add-to-list 'ac-modes 'enh-ruby-mode)
-
 
 ;; Smart Parens
 (require 'smartparens-config)
@@ -383,7 +326,7 @@ static char *gnus-pointer[] = {
                (sp-local-pair "<%" "%>"))
 
 
-;; Flyspell
+;; Flyspell (spell check)
 (require 'flyspell)
 (setq flyspell-issue-message-flg nil)
 (add-hook 'enh-ruby-mode-hook
@@ -414,7 +357,7 @@ static char *gnus-pointer[] = {
   '(better-defaults                 ;; Set up some better Emacs defaults
     elpy                            ;; Emacs Lisp Python Environment
     flycheck                        ;; On the fly syntax checking
-    material-theme                  ;; Theme
+    ;;material-theme                  ;; Theme
     blacken                         ;; Black formatting on save
     magit                           ;; Git integration
     )
@@ -479,6 +422,8 @@ static char *gnus-pointer[] = {
 ;;     (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
 ;;     (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t))))
 
+
+
 ;;-------------------------------------------------------------------------------------------
 ;; Treemacs
 ;;-------------------------------------------------------------------------------------------
@@ -513,15 +458,16 @@ static char *gnus-pointer[] = {
   :ensure t)
 
 
+
 ;;-------------------------------------------------------------------------------------------
 ;; JAVA
 ;;-------------------------------------------------------------------------------------------
 
 
+
 ;;-------------------------------------------------------------------------------------------
 ;; GOLANG
 ;;-------------------------------------------------------------------------------------------
-
 
 
 
