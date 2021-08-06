@@ -1,9 +1,11 @@
+(prefer-coding-system 'utf-8)
 (require 'package)
 
 ;;-------------------------------------------------------------------------------------------
-;; MELPA
+;; MELPA & GNU
 ;;-------------------------------------------------------------------------------------------
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives '("gnu" . "http://elpa.gnu.org/packages/"))
 
 ;; Added by Package.el.  This must come before configurations of
 ;; installed packages.  Don't delete this line.  If you don't want it,
@@ -11,20 +13,57 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
+;;-------------------------------------------------------------------------------------------
+;; SYSTEM SETUP
+;;-------------------------------------------------------------------------------------------
+;;;; Bootstrap use-package system
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+;; Enable use-package
+(eval-when-compile
+  (require 'use-package))
+
+(setq use-package-always-ensure t)
+
+(use-package projectile
+  :ensure t)
+
+(use-package helm
+  :ensure t)
+
+(use-package helm-projectile
+  :ensure t)
+
+(use-package ac-helm
+  :ensure t)
+
+(use-package seeing-is-believing
+  :ensure t)
+
+(use-package ruby-test-mode
+  :ensure t)
+
+(use-package ac-inf-ruby
+  :ensure t)
+
 
 ;;-------------------------------------------------------------------------------------------
 ;; DEFAULTS 
 ;;-------------------------------------------------------------------------------------------
+;; better defaults
+(require 'better-defaults)
+(menu-bar-mode t) 
+
 (setq column-number-mode t
       initial-scratch-message nil
       inhibit-startup-screen t
+      visible-bell t
       show-paren-mode 1)
 
 ;; show line numbers
 (global-linum-mode)
-
-(require 'better-defaults)
-(menu-bar-mode t) 
 
 ;; make PC keyboard's Win key or other to type Super or Hyper, for emacs running on Windows.
 (setq w32-pass-lwindow-to-system nil)
@@ -129,6 +168,8 @@
 
 
 
+
+
 ;;-------------------------------------------------------------------------------------------
 ;; CUSTOM
 ;;-------------------------------------------------------------------------------------------
@@ -144,6 +185,7 @@
  '(ansi-term-color-vector
    [unspecified "#FFFFFF" "#d15120" "#5f9411" "#d2ad00" "#6b82a7" "#a66bab" "#6b82a7" "#505050"])
  '(beacon-color "#c82829")
+ '(column-number-mode t)
  '(custom-enabled-themes (quote (material-light)))
  '(custom-safe-themes
    (quote
@@ -191,9 +233,10 @@ static char *gnus-pointer[] = {
  '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-    (ruby-test-mode ruby-electric seeing-is-believing butler jenkins jenkinsfile-mode use-package better-defaults hemisu-theme 0blayout hybrid-reverse-theme immaterial-theme material-theme acme-theme afternoon-theme ahungry-theme alect-themes ample-zen-theme apropospriate-theme autumn-light-theme color-theme-sanityinc-tomorrow soft-stone-theme twilight-anti-bright-theme twilight-bright-theme twilight-theme magit auto-complete flycheck-plantuml plantuml-mode auto-complete-rst sphinx-doc sphinx-mode blacken elpy flycheck-pycheckers importmagic jedi pippel pyimpsort python-black python-docstring python-mode yaml-tomato indent-tools yaml-mode ruby-extra-highlight yard-mode enh-ruby-mode format-all rbtagger rubocop rubocopfmt ruby-tools rufo)))
+    (0blayout acme-theme afternoon-theme ahungry-theme alect-themes ample-zen-theme apropospriate-theme auto-complete auto-complete-rst autumn-light-theme better-defaults blacken butler color-theme-sanityinc-tomorrow elpy enh-ruby-mode flycheck-plantuml flycheck-pycheckers format-all hemisu-theme hybrid-reverse-theme immaterial-theme importmagic indent-tools jedi jenkins jenkinsfile-mode magit material-theme pippel plantuml-mode pyimpsort python-black python-docstring python-mode rbtagger rubocop rubocopfmt ruby-electric ruby-extra-highlight ruby-test-mode ruby-tools rufo seeing-is-believing soft-stone-theme sphinx-doc sphinx-mode twilight-anti-bright-theme twilight-bright-theme twilight-theme use-package yaml-mode yaml-tomato yard-mode)))
  '(pos-tip-background-color "#ffffff")
  '(pos-tip-foreground-color "#78909C")
+ '(show-paren-mode t)
  '(tabbar-background-color "#ffffff")
  '(vc-annotate-background nil)
  '(vc-annotate-color-map
@@ -223,7 +266,7 @@ static char *gnus-pointer[] = {
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:family "Source Code Pro" :foundry "ADBO" :slant normal :weight normal :height 113 :width normal)))))
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -389,13 +432,25 @@ static char *gnus-pointer[] = {
 (setq jedi:complete-on-dot t)                 ; optional
 
 ;; Enable elpy
-(elpy-enable)
+;;(elpy-enable)
+;;(add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
+
+(elpy-enable)  
+(setq elpy-rpc-backend "jedi")  
 (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
 
 ;; Enable Flycheck
 (when (require 'flycheck nil t)
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
   (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+;; pipenv
+(use-package pipenv
+  :hook (python-mode . pipenv-mode)
+  :init
+  (setq
+   pipenv-projectile-after-switch-function
+   #'pipenv-projectile-after-switch-extended))
 
 
 ;;-------------------------------------------------------------------------------------------
