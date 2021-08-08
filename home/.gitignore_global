@@ -279,3 +279,9 @@ build.xml
 
 # emacs markdown stuff
 flymd.*
+
+.idea
+
+# Ruby
+Gemfile.lock
+

@@ -13,6 +13,8 @@
 ;; You may delete these explanatory comments.
 (package-initialize)
 
+
+
 ;;-------------------------------------------------------------------------------------------
 ;; SYSTEM SETUP
 ;;-------------------------------------------------------------------------------------------
@@ -28,6 +30,8 @@
 (setq use-package-always-ensure t)
 
 (use-package projectile
+
+  
   :ensure t)
 
 (use-package helm
@@ -47,6 +51,7 @@
 
 (use-package ac-inf-ruby
   :ensure t)
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -69,33 +74,12 @@
 (setq w32-pass-lwindow-to-system nil)
 (setq w32-lwindow-modifier 'super) ; Left Windows key
 
-;;-------------------------------------------------------------------------------------------
-;; HELM (investigate this further)
-;;-------------------------------------------------------------------------------------------
-;; (setq package-list '(better-defaults
-;;                      solarized-theme
-;;                      helm
-;;                      helm-projectile
-;;                      helm-ag))
+;; Symbol highlighting
+(require 'auto-highlight-symbol)
+(global-auto-highlight-symbol-mode t)
+(require 'highlight-parentheses)
 
-(require 'ac-helm) ;; Not necessary if using ELPA package
-
-(global-set-key (kbd "M-x") #'helm-M-x)
-;;(global-set-key (kbd "s-f") #'helm-projectile-ag)
-;;(global-set-key (kbd "s-t") #'helm-projectile-find-file-dwim)
-
-(global-set-key (kbd "C-:") 'ac-complete-with-helm)
-(define-key ac-complete-mode-map (kbd "C-:") 'ac-complete-with-helm)
-
-;; Projectile
-(require 'helm-projectile)
-(projectile-global-mode)
-(setq projectile-completion-system 'helm)
-(helm-projectile-on)
-
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
-
+(global-set-key (kbd "C-?") 'flymake-show-diagnostics-buffer)
 
 
 
@@ -162,7 +146,7 @@ static char *gnus-pointer[] = {
  '(inhibit-startup-screen t)
  '(package-selected-packages
    (quote
-    (0blayout acme-theme afternoon-theme ahungry-theme alect-themes ample-zen-theme apropospriate-theme auto-complete auto-complete-rst autumn-light-theme better-defaults blacken butler color-theme-sanityinc-tomorrow elpy enh-ruby-mode flycheck-plantuml flycheck-pycheckers format-all hemisu-theme hybrid-reverse-theme immaterial-theme importmagic indent-tools jedi jenkins jenkinsfile-mode magit material-theme pippel plantuml-mode pyimpsort python-black python-docstring python-mode rbtagger rubocop rubocopfmt ruby-electric ruby-extra-highlight ruby-test-mode ruby-tools rufo seeing-is-believing soft-stone-theme sphinx-doc sphinx-mode twilight-anti-bright-theme twilight-bright-theme twilight-theme use-package yaml-mode yaml-tomato yard-mode)))
+    (0blayout acme-theme afternoon-theme ahungry-theme alect-themes ample-zen-theme apropospriate-theme auto-complete auto-complete-rst autumn-light-theme better-defaults blacken butler color-theme-sanityinc-tomorrow elpy enh-ruby-mode flycheck-plantuml flycheck-pycheckers format-all hemisu-theme hybrid-reverse-theme immaterial-theme importmagic indent-tools jedi jenkins jenkinsfile-mode magit material-theme pippel plantuml-mode projectile pyimpsort python-black python-docstring python-mode rbtagger rubocop rubocopfmt ruby-electric ruby-extra-highlight ruby-test-mode ruby-tools rufo seeing-is-believing soft-stone-theme sphinx-doc sphinx-mode twilight-anti-bright-theme twilight-bright-theme twilight-theme use-package which-key yaml-mode yaml-tomato yard-mode)))
  '(pos-tip-background-color "#ffffff")
  '(pos-tip-foreground-color "#78909C")
  '(show-paren-mode t)
@@ -190,17 +174,66 @@ static char *gnus-pointer[] = {
      (360 . "DarkOliveGreen3"))))
  '(vc-annotate-very-old-color nil)
  '(window-divider-mode nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:family "Source Code Pro" :foundry "ADBO" :slant normal :weight normal :height 113 :width normal)))))
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(default ((t (:family "Source Code Pro" :foundry "ADBO" :slant normal :weight normal :height 113 :width normal)))))
+
+
+
+;;-------------------------------------------------------------------------------------------
+;; SOLARGRAPH
+;;-------------------------------------------------------------------------------------------
+(require 'lsp-mode)
+(add-hook 'ruby-mode-hook #'lsp)
+(global-set-key (kbd "C-c h h") 'lsp-describe-thing-at-point)
+
+;; which-key integration with LSP
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+
+;; Redefine the 'super' key to be "C-c C-c" for LSP
+;; The old way works for the moment but once this is upgraded use the new way
+(setq lsp-keymap-prefix "C-c C-c")  ;; OLD WAY
+;;(define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map)) ;; NEW WAY (broken)
+
+
+
+;;-------------------------------------------------------------------------------------------
+;; HELM
+;;-------------------------------------------------------------------------------------------
+(require 'ac-helm) ;; Not necessary if using ELPA package
+
+(global-set-key (kbd "M-x") #'helm-M-x)
+(global-set-key (kbd "C-:") 'ac-complete-with-helm)
+(define-key ac-complete-mode-map (kbd "C-:") 'ac-complete-with-helm)
+
+;;(autoload 'helm-company "helm-company") ;; Not necessary if using ELPA package
+(eval-after-load 'company
+  '(progn
+     (define-key company-mode-map (kbd "C-:") 'helm-company)
+     (define-key company-active-map (kbd "C-:") 'helm-company)))
+
+
+
+;;-------------------------------------------------------------------------------------------
+;; PROJECTILE
+;;-------------------------------------------------------------------------------------------
+(require 'helm-projectile)
+(projectile-global-mode)
+(setq projectile-completion-system 'helm)
+(helm-projectile-on)
+
+(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+
 
 
 ;;-------------------------------------------------------------------------------------------
 ;; RUBY
 ;;-------------------------------------------------------------------------------------------
+(setq ruby-insert-encoding-magic-comment nil)
 (setq package-list '(
 		     better-defaults
                      ruby-electric
@@ -214,24 +247,32 @@ static char *gnus-pointer[] = {
 (require 'seeing-is-believing)
 (require 'ruby-test-mode)
 
+;; RVM
+(rvm-use-default)
+(global-set-key (kbd "C-c r a") 'rvm-activate-corresponding-ruby)
+
 (add-hook 'ruby-mode-hook #'rubocopfmt-mode)
 
+;; Make sure yard-mode starts when ruby-mode does
+(add-hook 'ruby-mode-hook #'yard-mode)
+(add-hook 'ruby-mode-hook #'eldoc-mode)
+(add-hook 'ruby-mode-hook #'which-key-mode)
+(add-hook 'ruby-mode-hook #'fic-mode) ;; Highlights BUG, TODO, and FIXME
+
 ;; ruby hooks
-(eval-after-load "ruby-mode"
-  '(progn
-     '(add-hook 'ruby-mode-hook 'ruby-electric-mode)         
-;;     '(add-hook 'ruby-mode-hook 'rubocopfmt-mode)           
-     '(add-hook 'ruby-mode-hook 'ruby-extra-highlight-mode) 
-;;     '(add-hook 'ruby-mode-hook #'rubocopfmt-mode)           
-;;     '(add-hook 'ruby-mode-hook #'ruby-extra-highlight-mode) 
-     '(add-hook 'ruby-mode-hook 'seeing-is-believing)
-     '(add-hook 'ruby-mode-hook 'ruby-test-mode)
-  )
-)
+;; (eval-after-load "ruby-mode"
+;;   '(progn
+;;      '(add-hook 'ruby-mode-hook 'ruby-electric-mode)         
+;;      '(add-hook 'ruby-mode-hook 'ruby-extra-highlight-mode) 
+;; ;;     '(add-hook 'ruby-mode-hook #'ruby-extra-highlight-mode) 
+;;      '(add-hook 'ruby-mode-hook 'seeing-is-believing)
+;;      '(add-hook 'ruby-mode-hook 'ruby-test-mode)
+;;      )
+;; )
+
 
 (setq rubocopfmt-use-bundler-when-possible nil) ;; rubocop
 (setq seeing-is-believing-prefix "C-.")         ;; SiB
-
 
 ;; yaml files
 (add-to-list 'auto-mode-alist
@@ -243,47 +284,60 @@ static char *gnus-pointer[] = {
 (add-to-list 'auto-mode-alist
              '("\\(?:Brewfile\\|Capfile\\|Gemfile\\(?:\\.[a-zA-Z0-9._-]+\\)?\\|[rR]akefile\\)\\'" . ruby-mode))
 
+;; INF
+;;(autoload 'inf-ruby "inf-ruby" "Run an inferior Ruby process" t)
+;;(add-hook 'ruby-mode-hook 'inf-ruby-minor-mode)
+(add-hook 'enh-ruby-mode-hook 'inf-ruby-minor-mode)
+(global-set-key (kbd "C-c r r") 'inf-ruby)
+
+(eval-after-load 'inf-ruby
+'(define-key inf-ruby-minor-mode-map
+(kbd "C-c C-s") 'inf-ruby-console-auto))
 
 ;; auto complete
-(add-hook 'enh-ruby-mode-hook 'inf-ruby-minor-mode)
-
 (require 'ac-inf-ruby) ;; when not installed via package.el
  (eval-after-load 'auto-complete
  '(add-to-list 'ac-modes 'inf-ruby-mode))
  (add-hook 'inf-ruby-mode-hook 'ac-inf-ruby-enable)
 
+;; auto complete
+;; (require 'auto-complete-config)
+;; (ac-config-default)
+;; (setq ac-ignore-case nil)
+;; (add-to-list 'ac-modes 'enh-ruby-mode)
+
 ;; Optionally bind auto-complete to TAB in inf-ruby buffers:
-;; (eval-after-load 'inf-ruby '
-;; '(define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
+(eval-after-load 'inf-ruby '
+'(define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
 
-;; robe
-;; (add-hook 'ruby-mode-hook 'robe-mode)
-;; (add-hook 'robe-mode-hook 'ac-robe-setup)
+;; syntax checking in ruby
+(require 'flymake-ruby)
+(add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
-;; (global-robe-mode)
-
-;; - M-. to jump to the definition
-;; - M-, to jump back
-;; - C-c C-d to see the documentation
-;; - C-c C-k to refresh Rails environment
-;; - C-M-i to complete the symbol at point
-
-
- (require 'auto-complete-config)
- (ac-config-default)
- (setq ac-ignore-case nil)
- (add-to-list 'ac-modes 'enh-ruby-mode)
+;; Smart Parens
+(require 'smartparens-config)
+(require 'smartparens-ruby)
+(smartparens-global-mode)
+(show-smartparens-global-mode t)
+(sp-with-modes '(rhtml-mode)
+               (sp-local-pair "<" ">")
+               (sp-local-pair "<%" "%>"))
 
 
-;; BROKEN
-;; Solargraph
-;; (add-to-list 'load-path "~/.emacs.d/lisp/emacs-solargraph")
-;; (require 'solargraph)
-;; (define-key ruby-mode-map (kbd "M-i") 'solargraph:complete)
+;; Flyspell (spell check)
+(require 'flyspell)
+(setq flyspell-issue-message-flg nil)
+(add-hook 'enh-ruby-mode-hook
+          (lambda () (flyspell-prog-mode)))
 
-;; ;; Solargraph autocomplete setup
-;; (require 'ac-solargraph)
-;; (define-key ruby-mode-map (kbd "M-i") 'ac-solargraph:complete) 
+(add-hook 'web-mode-hook
+          (lambda () (flyspell-prog-mode)))
+;; flyspell mode breaks auto-complete mode without this.
+(ac-flyspell-workaround)
+
+(require 'flyspell-correct-helm)
+(define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -301,7 +355,7 @@ static char *gnus-pointer[] = {
   '(better-defaults                 ;; Set up some better Emacs defaults
     elpy                            ;; Emacs Lisp Python Environment
     flycheck                        ;; On the fly syntax checking
-    material-theme                  ;; Theme
+    ;;material-theme                  ;; Theme
     blacken                         ;; Black formatting on save
     magit                           ;; Git integration
     )
@@ -366,14 +420,53 @@ static char *gnus-pointer[] = {
 ;;     (add-to-list 'org-src-lang-modes '("plantuml" . plantuml))
 ;;     (org-babel-do-load-languages 'org-babel-load-languages '((plantuml . t))))
 
+
+
+;;-------------------------------------------------------------------------------------------
+;; Treemacs
+;;-------------------------------------------------------------------------------------------
+(use-package treemacs
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-width                         40
+          treemacs-width-is-initially-locked     nil))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t t"   . treemacs)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :after (treemacs dired)
+  :ensure t
+  :config (treemacs-icons-dired-mode))
+
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
+
+
+
 ;;-------------------------------------------------------------------------------------------
 ;; JAVA
 ;;-------------------------------------------------------------------------------------------
 
 
+
 ;;-------------------------------------------------------------------------------------------
 ;; GOLANG
 ;;-------------------------------------------------------------------------------------------
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -382,3 +475,5 @@ static char *gnus-pointer[] = {
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
+
+
