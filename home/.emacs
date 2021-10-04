@@ -29,13 +29,39 @@
 
 (setq use-package-always-ensure t)
 
-(use-package projectile
+(setq tramp-default-method "ssh")
 
-  
-  :ensure t)
 
+;;-------------------------------------------------------------------------------------------
+;; HELM
+;;-------------------------------------------------------------------------------------------
 (use-package helm
-  :ensure t)
+  :ensure t
+  :after (company)
+  
+  :bind (("M-x" . helm-M-x)
+         :map ac-complete-mode-map
+         ("C-:" . ac-complete-with-helm)
+         :map company-mode-map
+         ("C-:" . helm-company)
+         :map company-active-map
+         ("C-:" . helm-company)
+         )
+  )
+
+
+;;-------------------------------------------------------------------------------------------
+;; PROJECTILE
+;;-------------------------------------------------------------------------------------------
+(use-package projectile
+  :ensure t
+  :bind (:map projectile-mode-map
+              ("C-c p" . projectile-command-map))
+  :config
+  (projectile-global-mode)
+  (setq projectile-completion-system 'helm)
+  (helm-projectile-on)
+  )
 
 (use-package helm-projectile
   :ensure t)
@@ -196,37 +222,37 @@ static char *gnus-pointer[] = {
 
 ;; Redefine the 'super' key to be "C-c C-c" for LSP
 ;; The old way works for the moment but once this is upgraded use the new way
-(setq lsp-keymap-prefix "C-c C-c")  ;; OLD WAY
-;;(define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map)) ;; NEW WAY (broken)
+;;(setq lsp-keymap-prefix "C-c C-c")  ;; OLD WAY
+(define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map) ;; NEW WAY (broken)
 
 
 
 ;;-------------------------------------------------------------------------------------------
 ;; HELM
 ;;-------------------------------------------------------------------------------------------
-(require 'ac-helm) ;; Not necessary if using ELPA package
+;; (require 'ac-helm) ;; Not necessary if using ELPA package
 
-(global-set-key (kbd "M-x") #'helm-M-x)
-(global-set-key (kbd "C-:") 'ac-complete-with-helm)
-(define-key ac-complete-mode-map (kbd "C-:") 'ac-complete-with-helm)
+;; (global-set-key (kbd "M-x") #'helm-M-x)
+;; (global-set-key (kbd "C-:") 'ac-complete-with-helm)
+;; (define-key ac-complete-mode-map (kbd "C-:") 'ac-complete-with-helm)
 
-;;(autoload 'helm-company "helm-company") ;; Not necessary if using ELPA package
-(eval-after-load 'company
-  '(progn
-     (define-key company-mode-map (kbd "C-:") 'helm-company)
-     (define-key company-active-map (kbd "C-:") 'helm-company)))
+;; ;;(autoload 'helm-company "helm-company") ;; Not necessary if using ELPA package
+;; (eval-after-load 'company
+;;   '(progn
+;;      (define-key company-mode-map (kbd "C-:") 'helm-company)
+;;      (define-key company-active-map (kbd "C-:") 'helm-company)))
 
 
 
 ;;-------------------------------------------------------------------------------------------
 ;; PROJECTILE
 ;;-------------------------------------------------------------------------------------------
-(require 'helm-projectile)
-(projectile-global-mode)
-(setq projectile-completion-system 'helm)
-(helm-projectile-on)
+;; (require 'helm-projectile)
+;; (projectile-global-mode)
+;; (setq projectile-completion-system 'helm)
+;; (helm-projectile-on)
 
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+;; (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 
 
 
@@ -291,14 +317,14 @@ static char *gnus-pointer[] = {
 (global-set-key (kbd "C-c r r") 'inf-ruby)
 
 (eval-after-load 'inf-ruby
-'(define-key inf-ruby-minor-mode-map
-(kbd "C-c C-s") 'inf-ruby-console-auto))
+  '(define-key inf-ruby-minor-mode-map
+     (kbd "C-c C-s") 'inf-ruby-console-auto))
 
 ;; auto complete
 (require 'ac-inf-ruby) ;; when not installed via package.el
- (eval-after-load 'auto-complete
- '(add-to-list 'ac-modes 'inf-ruby-mode))
- (add-hook 'inf-ruby-mode-hook 'ac-inf-ruby-enable)
+(eval-after-load 'auto-complete
+  '(add-to-list 'ac-modes 'inf-ruby-mode))
+(add-hook 'inf-ruby-mode-hook 'ac-inf-ruby-enable)
 
 ;; auto complete
 ;; (require 'auto-complete-config)
@@ -308,7 +334,7 @@ static char *gnus-pointer[] = {
 
 ;; Optionally bind auto-complete to TAB in inf-ruby buffers:
 (eval-after-load 'inf-ruby '
-'(define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
+  '(define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
 
 ;; syntax checking in ruby
 (require 'flymake-ruby)
@@ -320,8 +346,8 @@ static char *gnus-pointer[] = {
 (smartparens-global-mode)
 (show-smartparens-global-mode t)
 (sp-with-modes '(rhtml-mode)
-               (sp-local-pair "<" ">")
-               (sp-local-pair "<%" "%>"))
+  (sp-local-pair "<" ">")
+  (sp-local-pair "<%" "%>"))
 
 
 ;; Flyspell (spell check)
@@ -337,6 +363,14 @@ static char *gnus-pointer[] = {
 
 (require 'flyspell-correct-helm)
 (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
+
+
+;; Custom definition to insert this stupid string literal comment
+;; # frozen_string_literal: true
+;; # Copyright © 2009-2021 by Metova Federal, LLC.  All rights reserved
+(fset 'insert-metova-copyright
+   (kmacro-lambda-form [escape ?< ?# ?  ?f ?r ?o ?z ?e ?n ?_ ?s ?t ?r ?i ?n ?g ?_ ?l ?i ?t ?e ?r ?a ?l ?: ?  ?t ?r ?u ?e return return ?# ?  ?C ?o ?p ?y ?r ?i ?g ?h ?t ?  ?© ?  ?2 ?0 ?0 ?9 ?- ?2 ?0 ?2 ?1 ?  ?b ?y ?  ?M ?e ?t ?o ?v ?a ?  ?F ?e ?d ?e ?r ?a ?l ?, ?  ?L ?L ?C ?. ?  ?A backspace ?  ?A ?l ?l ?  ?r ?i ?g ?h ?t ?s ?  ?r ?e ?s ?e ?r ?v ?e ?d return return] 0 "%d"))
+
 
 
 
