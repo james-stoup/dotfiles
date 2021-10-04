@@ -1,0 +1,17 @@
+pane	0	1	:local	1	:*	0	:/home/jstoup/repos/slamr-backup-restore-service	0	bash	:
+pane	0	1	:local	1	:*	1	:/home/jstoup/repos/slamr-infrastructure-manager	1	bash	:
+pane	0	2	:rabtap	0	:-	0	:/home/jstoup/tools/new_rmq_tester	1	bash	:
+pane	0	2	:rabtap	0	:-	1	:/home/jstoup	0	bash	:
+pane	0	3	:devrange6	0	:	0	:/home/jstoup	1	ssh	:ssh cents@dev-range-6
+pane	0	4	:dev-tools	0	:	0	:/home/jstoup	1	bash	:
+pane	0	5	:ruby-sandbox	0	:	0	:/home/jstoup/tcs/junk	1	bash	:
+pane	0	6	:homeshick	0	:	0	:/home/jstoup/.homesick/repos/dotfiles/home	1	bash	:
+pane	0	7	:rmq-tunnel	0	:	0	:/home/jstoup/.config/systemd/user	1	bash	:
+window	0	1	1	:*	16cf,282x72,0,0{141x72,0,0,1,140x72,142,0,2}
+window	0	2	0	:-	1f42,282x72,0,0{161x72,0,0,3,120x72,162,0,4}
+window	0	3	0	:	bba2,282x72,0,0,5
+window	0	4	0	:	bba3,282x72,0,0,6
+window	0	5	0	:	bba4,282x72,0,0,7
+window	0	6	0	:	bba5,282x72,0,0,8
+window	0	7	0	:	bba6,282x72,0,0,9
+state	0	
