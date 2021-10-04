@@ -31,6 +31,8 @@
 
 (setq tramp-default-method "ssh")
 
+(use-package paredit
+  :ensure t)
 
 ;;-------------------------------------------------------------------------------------------
 ;; HELM
