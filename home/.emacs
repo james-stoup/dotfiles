@@ -109,6 +109,11 @@
 
 (global-set-key (kbd "C-?") 'flymake-show-diagnostics-buffer)
 
+;; Auto correct spelling mistakes
+(add-hook 'prog-mode-hook 'flyspell-prog-mode) ;; this doesn't want for ruby so doing it manually
+(add-hook 'ruby-mode-hook #'flyspell-prog-mode)
+;;(define-key flyspell-mode-map (kbd "C-;") 'helm-flyspell-correct)
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -212,6 +217,110 @@ static char *gnus-pointer[] = {
 
 
 ;;-------------------------------------------------------------------------------------------
+;; ORG MODE
+;;-------------------------------------------------------------------------------------------
+(require 'org)
+(add-hook 'org-mode-hook (lambda () (org-autolist-mode)))
+
+;; Shortcuts
+(define-key global-map "\C-cl" 'org-store-link)
+(define-key global-map "\C-ca" 'org-agenda)
+(define-key global-map "\C-cc" 'org-capture)
+
+;; Agenda hacks
+(defun air-org-skip-subtree-if-priority (priority)
+  "Skip an agenda subtree if it has a priority of PRIORITY.
+
+PRIORITY may be one of the characters ?A, ?B, or ?C."
+  (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+        (pri-value (* 1000 (- org-lowest-priority priority)))
+        (pri-current (org-get-priority (thing-at-point 'line t))))
+    (if (= pri-value pri-current)
+        subtree-end
+      nil)))
+
+(defun air-org-skip-subtree-if-habit ()
+  "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
+  (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+    (if (string= (org-entry-get nil "STYLE") "habit")
+        subtree-end
+      nil)))
+
+(setq org-agenda-start-day "-1d")
+
+(setq org-agenda-custom-commands
+      '(("d" "Daily agenda and all TODOs"
+         ((tags "PRIORITY=\"A\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "\n==================================================================\n\nHigh-priority unfinished tasks:")))
+          (agenda "" ((org-agenda-span 3)))
+          (alltodo ""
+                   ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
+                                                   (air-org-skip-subtree-if-priority ?A)
+                                                   (org-agenda-skip-if nil '(scheduled deadline))))
+                    (org-agenda-overriding-header "\n==================================================================\n\nALL normal priority tasks:"))))
+         ((org-agenda-compact-blocks t)))))
+;; End Agenda hacks
+
+;; Must do this so org knows where to look
+(setq org-agenda-files '("~/org"))
+
+(setq org-log-done t)
+
+;; TODO states
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "IN-PROGRESS(i@/!)" "VERIFY(v!)" "|" "DONE(d!)" "OBE(o!)" "BLOCKED(b@)")))
+
+;; Tags
+(setq org-tag-alist '((:startgroup . nil)
+                      ("@story" . ?s) ("@bug" . ?b) ("@task" . ?t) ("@subtask" . ?u)
+                      (:endgroup . nil)
+                      ("random" . ?r) ("HR" . ?h) ("backend" . ?k) ("frontend" . ?f) ("QA" . ?q) ("planning" . ?p)))
+
+;; All org files
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+(add-hook 'org-mode-hook 'org-indent-mode)
+
+
+
+;; journal settings
+(setq org-capture-templates
+      '(    
+        ("c" "Code To-Do"
+         entry (file+headline "~/org/todos.org" "Code Related Tasks")
+         "* TODO %?\n %i\n %a"
+         :empty-lines 1)
+
+        ("g" "General To-Do"
+         entry (file+headline "~/org/todos.org" "General Tasks")
+         "* TODO %?\n"
+         :empty-lines 1)
+        
+        ("j" "Work Journal Entry"
+         entry (file+datetree "~/org/work-log.org")
+         "* %?"
+         :empty-lines 0)
+        
+        ("m" "Meeting"
+         entry (file "~/org/meetings.org")
+         "* %? %^g\n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n- [ ] %^G"         
+         :empty-lines 1)
+        
+        ("n" "Note"
+         entry (file+headline "~/org/notes.org" "Random Notes")
+         "** %?"
+         :empty-lines 1)
+
+        ("t" "Ticket"
+         entry (file "~/org/tickets.org" )
+         "* TODO %?\nStarted: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verify\n** Subtasks"
+         :empty-lines 1)
+
+        ))
+
+
+
+;;-------------------------------------------------------------------------------------------
 ;; SOLARGRAPH
 ;;-------------------------------------------------------------------------------------------
 (require 'lsp-mode)
@@ -223,9 +332,8 @@ static char *gnus-pointer[] = {
   (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
 
 ;; Redefine the 'super' key to be "C-c C-c" for LSP
-;; The old way works for the moment but once this is upgraded use the new way
 ;;(setq lsp-keymap-prefix "C-c C-c")  ;; OLD WAY
-(define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map) ;; NEW WAY (broken)
+(define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map) ;; NEW WAY
 
 
 
@@ -364,7 +472,7 @@ static char *gnus-pointer[] = {
 (ac-flyspell-workaround)
 
 (require 'flyspell-correct-helm)
-(define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
+;;(define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
 
 
 ;; Custom definition to insert this stupid string literal comment

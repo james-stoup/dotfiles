@@ -279,6 +279,9 @@ build.xml
 # emacs markdown stuff
 flymd.*
 
+# emacs temp files
+*.#*
+
 .idea
 
 # Ruby
@@ -286,4 +289,4 @@ Gemfile.lock
 
 .solargraph.yml
 
-
+\#*
