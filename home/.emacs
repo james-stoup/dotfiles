@@ -39,6 +39,8 @@
   :ensure t
   :hook (after-init . doom-modeline-mode))
 
+(setq doom-modeline-buffer-file-name-style 'file-name) 
+
 ;;-------------------------------------------------------------------------------------------
 ;; HELM
 ;;-------------------------------------------------------------------------------------------
@@ -119,7 +121,8 @@
 (add-hook 'ruby-mode-hook #'flyspell-prog-mode)
 ;;(define-key flyspell-mode-map (kbd "C-;") 'helm-flyspell-correct)
 
-
+;; Company mode
+(add-hook 'after-init-hook 'global-company-mode)
 
 ;;-------------------------------------------------------------------------------------------
 ;; CUSTOM
@@ -214,7 +217,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         
         ("m" "Meeting"
          entry (file "~/org/meetings.org")
-         "* %? %^g\n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n- [ ] %^G"         
+         "* %? %^g\n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n- [ ]"         
          :empty-lines 1)
         
         ("n" "Note"
