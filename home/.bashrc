@@ -94,8 +94,11 @@ _vpn_prompt() {
     
 }
 
+
+
 function _prompt_command() {
-    PS1="`_git_prompt``_vpn_prompt`"
+    #PS1="`_git_prompt``_vpn_prompt`"
+    PS1="`_git_prompt`"'\[\033[1;91m\](\u - \t)\[\033[0;36m\]\n  \[\033[1;36m\][\w]\[\033[0;97m\]\$ '    
 }
 
 PROMPT_COMMAND=_prompt_command
