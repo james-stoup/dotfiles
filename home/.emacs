@@ -124,11 +124,15 @@
 ;; Company mode
 (add-hook 'after-init-hook 'global-company-mode)
 
+(which-key-mode)
+
+
 ;;-------------------------------------------------------------------------------------------
 ;; CUSTOM
 ;;-------------------------------------------------------------------------------------------
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
+
 
 ;;-------------------------------------------------------------------------------------------
 ;; ORG MODE
@@ -136,12 +140,25 @@
 (require 'org)
 (add-hook 'org-mode-hook (lambda () (org-autolist-mode)))
 
+;; Must do this so org knows where to look
+(setq org-agenda-files '("~/org"))
+(setq org-log-done t)
+
+;; All org files
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+(add-hook 'org-mode-hook 'org-indent-mode)
+
+;; Remap the change priority keys
+(define-key org-mode-map (kbd "C-c <up>") 'org-priority-up)
+(define-key org-mode-map (kbd "C-c <down>") 'org-priority-down)
+
 ;; Shortcuts
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (define-key global-map "\C-cc" 'org-capture)
 
-;; Agenda hacks
+;;;; Agenda hacks ;;;;
+;; Agenda View "d"
 (defun air-org-skip-subtree-if-priority (priority)
   "Skip an agenda subtree if it has a priority of PRIORITY.
 
@@ -161,53 +178,98 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
       nil)))
 
 (setq org-agenda-start-day "-1d")
+(setq org-agenda-skip-deadline-if-done t)
 
 (setq org-agenda-custom-commands
       '(("d" "Daily agenda and all TODOs"
          ((tags "PRIORITY=\"A\""
                 ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "\n==================================================================\n\nHigh-priority unfinished tasks:")))
+                 (org-agenda-overriding-header "\nHigh-priority unfinished tasks:")))
           (agenda "" ((org-agenda-span 3)))
           (alltodo ""
                    ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
                                                    (air-org-skip-subtree-if-priority ?A)
+                                                   (air-org-skip-subtree-if-priority ?C)
                                                    (org-agenda-skip-if nil '(scheduled deadline))))
-                    (org-agenda-overriding-header "\n==================================================================\n\nALL normal priority tasks:"))))
-         ((org-agenda-compact-blocks t)))))
+                    (org-agenda-overriding-header "ALL normal priority tasks:")))
+          (tags "PRIORITY=\"C\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Low-priority Unfinished tasks:")))          
+          )
+         ((org-agenda-compact-blocks nil)))))
+
+;; Agenda View "g"
+(setq org-agenda-custom-commands
+      '(("g" . "GTD contexts")
+        ("gp" "Planning" tags-todo "planning")
+        ("gb" "Backend" tags-todo "backend")
+        ("G" "GTD Block Agenda"
+         ((todo "IN-PROGRESS")
+          ;(tags-todo "URGENT")
+          ;(todo "NEXT")
+          )
+         ((org-agenda-prefix-format "[ ] %T: ")
+          (org-agenda-with-colors t)
+          (org-agenda-compact-blocks t)
+          (org-agenda-remove-tags t)
+          (ps-number-of-columns 2)
+          (ps-landscape-mode t))
+         ;;nil                      ;; i.e., no local settings
+         ("~/next-actions.txt"))
+        )
+      )
 ;; End Agenda hacks
-
-;; Must do this so org knows where to look
-(setq org-agenda-files '("~/org"))
-
-(setq org-log-done t)
 
 ;; TODO states
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "IN-PROGRESS(i@/!)" "VERIFY(v!)" "|" "DONE(d!)" "OBE(o!)" "BLOCKED(b@)")))
+      '((sequence "TODO(t)" "IN-PROGRESS(i@/!)" "VERIFY(v!)" "|" "DONE(d!)" "OBE(o!)" "BLOCKED(b@)")
+        ))
+
+;; TODO colors
+(setq org-todo-keyword-faces
+      '(("TODO" . (:foreground "GoldenRod" :weight bold))
+        ("IN-PROGRESS" . (:foreground "OrangeRed" :weight bold))
+        ("VERIFY" . (:foreground "IndianRed1" :weight bold))
+        ("DONE" . (:foreground "LimeGreen" :weight bold))
+        ("OBE" . (:foreground "LimeGreen" :weight bold))
+        ("BLOCKED" . (:foreground "IndianRed1" :weight bold))                
+        ))
 
 ;; Tags
 (setq org-tag-alist '((:startgroup . nil)
                       ("@story" . ?s) ("@bug" . ?b) ("@task" . ?t) ("@subtask" . ?u)
                       (:endgroup . nil)
-                      ("random" . ?r) ("HR" . ?h) ("backend" . ?k) ("frontend" . ?f) ("QA" . ?q) ("planning" . ?p)))
+                      ("misc" . ?m)
+                      ("HR" . ?h)
+                      ("backend" . ?k)
+                      ("frontend" . ?f)
+                      ("QA" . ?q)
+                      ("big-sprint-review" . ?w)
+                      ("sprint-retro" . ?r)                      
+                      ("planning" . ?p)
+                      ))
 
-;; All org files
-(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
-(add-hook 'org-mode-hook 'org-indent-mode)
-
-
+;; Tag colors
+(setq org-tag-faces
+      '(
+        ("planning" . (:foreground "purple" :weight bold))
+        ("backend" . (:foreground "blue1" :weight bold))
+        ("frontend" . (:foreground "forest green" :weight bold))
+        ("QA" . (:foreground "sienna" :weight bold))                        
+        )
+      )
 
 ;; journal settings
 (setq org-capture-templates
       '(    
         ("c" "Code To-Do"
          entry (file+headline "~/org/todos.org" "Code Related Tasks")
-         "* TODO %?\n %i\n %a"
+         "* TODO [#B] %?\n:Created: %T\n%i\n%a\nResolution: "
          :empty-lines 1)
 
         ("g" "General To-Do"
          entry (file+headline "~/org/todos.org" "General Tasks")
-         "* TODO %?\n"
+         "* TODO [#B] %?\n:Created: %T\n\nResolution: "
          :empty-lines 1)
         
         ("j" "Work Journal Entry"
@@ -217,7 +279,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         
         ("m" "Meeting"
          entry (file "~/org/meetings.org")
-         "* %? %^g\n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n- [ ]"         
+         "* %? %^g\n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "         
          :empty-lines 1)
         
         ("n" "Note"
@@ -227,11 +289,52 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("t" "Ticket"
          entry (file "~/org/tickets.org" )
-         "* TODO %?\nStarted: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verify\n** Subtasks"
+         "* TODO %?\nCreated: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verify\n** Subtasks"
          :empty-lines 1)
 
         ))
 
+;; Make org look better
+(setq org-hide-emphasis-markers t)
+
+(let* ((variable-tuple
+        (cond ((x-list-fonts "ETBembo")         '(:font "ETBembo"))
+              ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
+              ((x-list-fonts "Lucida Grande")   '(:font "Lucida Grande"))
+              ((x-list-fonts "Verdana")         '(:font "Verdana"))
+              ((x-family-fonts "Sans Serif")    '(:family "Sans Serif"))
+              (nil (warn "Cannot find a Sans Serif Font.  Install Source Sans Pro."))))
+       (base-font-color     (face-foreground 'default nil 'default))
+       (headline           `(:inherit default :weight bold :foreground ,base-font-color)))
+
+  (custom-theme-set-faces
+   'user
+   `(org-level-8 ((t (,@headline ,@variable-tuple))))
+   `(org-level-7 ((t (,@headline ,@variable-tuple))))
+   `(org-level-6 ((t (,@headline ,@variable-tuple))))
+   `(org-level-5 ((t (,@headline ,@variable-tuple))))
+   `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.0))))
+   `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.0))))
+   `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.1))))
+   `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.4))))
+   `(org-document-title ((t (,@headline ,@variable-tuple :height 1.6 :underline nil))))))
+
+(add-hook 'org-mode-hook 'visual-line-mode)
+
+  ;; (custom-theme-set-faces
+  ;;  'user
+  ;;  '(org-block ((t (:inherit fixed-pitch))))
+  ;;  '(org-code ((t (:inherit (shadow fixed-pitch)))))
+  ;;  '(org-document-info ((t (:foreground "dark orange"))))
+  ;;  '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+  ;;  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+  ;;  '(org-link ((t (:foreground "royal blue" :underline t))))
+  ;;  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+  ;;  '(org-property-value ((t (:inherit fixed-pitch))) t)
+  ;;  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+  ;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+  ;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+  ;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -248,23 +351,6 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; Redefine the 'super' key to be "C-c C-c" for LSP
 ;;(setq lsp-keymap-prefix "C-c C-c")  ;; OLD WAY
 (define-key lsp-mode-map (kbd "C-c C-c") lsp-command-map) ;; NEW WAY
-
-
-
-;;-------------------------------------------------------------------------------------------
-;; HELM
-;;-------------------------------------------------------------------------------------------
-;; (require 'ac-helm) ;; Not necessary if using ELPA package
-
-;; (global-set-key (kbd "M-x") #'helm-M-x)
-;; (global-set-key (kbd "C-:") 'ac-complete-with-helm)
-;; (define-key ac-complete-mode-map (kbd "C-:") 'ac-complete-with-helm)
-
-;; ;;(autoload 'helm-company "helm-company") ;; Not necessary if using ELPA package
-;; (eval-after-load 'company
-;;   '(progn
-;;      (define-key company-mode-map (kbd "C-:") 'helm-company)
-;;      (define-key company-active-map (kbd "C-:") 'helm-company)))
 
 
 
