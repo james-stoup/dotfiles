@@ -39,7 +39,7 @@
   :ensure t
   :hook (after-init . doom-modeline-mode))
 
-(setq doom-modeline-buffer-file-name-style 'file-name) 
+(setq doom-modeline-buffer-file-name-style 'file-name)
 
 ;;-------------------------------------------------------------------------------------------
 ;; HELM
@@ -47,7 +47,7 @@
 (use-package helm
   :ensure t
   :after (company)
-  
+
   :bind (("M-x" . helm-M-x)
          :map ac-complete-mode-map
          ("C-:" . ac-complete-with-helm)
@@ -90,11 +90,11 @@
 
 
 ;;-------------------------------------------------------------------------------------------
-;; DEFAULTS 
+;; DEFAULTS
 ;;-------------------------------------------------------------------------------------------
 ;; better defaults
 (require 'better-defaults)
-(menu-bar-mode t) 
+(menu-bar-mode t)
 
 (setq column-number-mode t
       initial-scratch-message nil
@@ -125,6 +125,28 @@
 (add-hook 'after-init-hook 'global-company-mode)
 
 (which-key-mode)
+(comment-tags-mode)
+
+;; Make things colorful
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+;; Replace package manager with something better
+(require 'paradox)
+(paradox-enable)
+(setq paradox-github-token "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")
+
+;; Adding pretty icons
+(mode-icons-mode)
+
+;; Auto format on save
+(format-all-mode)
+
+
+;;-------------------------------------------------------------------------------------------
+;; LOOK AND FEEL
+;;-------------------------------------------------------------------------------------------
+
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -132,6 +154,12 @@
 ;;-------------------------------------------------------------------------------------------
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
+
+
+;;-------------------------------------------------------------------------------------------
+;; ELisp
+;;-------------------------------------------------------------------------------------------
+(add-hook 'emacs-lisp-mode-hook 'highlight-defined-mode)
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -158,6 +186,7 @@
 (define-key global-map "\C-cc" 'org-capture)
 
 ;;;; Agenda hacks ;;;;
+
 ;; Agenda View "d"
 (defun air-org-skip-subtree-if-priority (priority)
   "Skip an agenda subtree if it has a priority of PRIORITY.
@@ -185,7 +214,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
          ((tags "PRIORITY=\"A\""
                 ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
                  (org-agenda-overriding-header "\nHigh-priority unfinished tasks:")))
-          (agenda "" ((org-agenda-span 3)))
+          (agenda "" ((org-agenda-span 5)))
           (alltodo ""
                    ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
                                                    (air-org-skip-subtree-if-priority ?A)
@@ -194,30 +223,53 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                     (org-agenda-overriding-header "ALL normal priority tasks:")))
           (tags "PRIORITY=\"C\""
                 ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "Low-priority Unfinished tasks:")))          
+                 (org-agenda-overriding-header "Low-priority Unfinished tasks:")))
           )
          ((org-agenda-compact-blocks nil)))))
 
+
+;; Agenda View "w"
+(add-to-list 'org-agenda-custom-commands
+             '("w" "Weekly review"
+               agenda ""
+               ((org-agenda-span 7)
+                (org-agenda-start-on-weekday 1)
+                (org-agenda-start-with-log-mode '(closed))
+                (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE ")))))
+
+;; Agenda View "c"
+(add-to-list 'org-agenda-custom-commands
+             '("c" "Closed items"
+               agenda ""
+               ((org-agenda-span 7)
+                (org-agenda-start-on-weekday 1)
+                                        ;(org-agenda-start-with-log-mode '(closed))
+                (org-agenda-log-mode-items '(closed))
+                )))
+
+
+
 ;; Agenda View "g"
-(setq org-agenda-custom-commands
-      '(("g" . "GTD contexts")
-        ("gp" "Planning" tags-todo "planning")
-        ("gb" "Backend" tags-todo "backend")
-        ("G" "GTD Block Agenda"
-         ((todo "IN-PROGRESS")
-          ;(tags-todo "URGENT")
-          ;(todo "NEXT")
-          )
-         ((org-agenda-prefix-format "[ ] %T: ")
-          (org-agenda-with-colors t)
-          (org-agenda-compact-blocks t)
-          (org-agenda-remove-tags t)
-          (ps-number-of-columns 2)
-          (ps-landscape-mode t))
-         ;;nil                      ;; i.e., no local settings
-         ("~/next-actions.txt"))
-        )
-      )
+;; (setq org-agenda-custom-commands
+;;       '(("g" . "GTD contexts")
+;;         ("gp" "Planning" tags-todo "planning")
+;;         ("gb" "Backend" tags-todo "backend")
+;;         ("G" "GTD Block Agenda"
+;;          ((todo "IN-PROGRESS")
+;;           ;(tags-todo "URGENT")
+;;           ;(todo "NEXT")
+;;           )
+;;          ((org-agenda-prefix-format "[ ] %T: ")
+;;           (org-agenda-with-colors t)
+;;           (org-agenda-compact-blocks t)
+;;           (org-agenda-remove-tags t)
+;;           (ps-number-of-columns 2)
+;;           (ps-landscape-mode t))
+;;          ;;nil                      ;; i.e., no local settings
+;;          ("~/next-actions.txt"))
+;;         )
+;;       )
+
 ;; End Agenda hacks
 
 ;; TODO states
@@ -232,7 +284,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         ("VERIFY" . (:foreground "IndianRed1" :weight bold))
         ("DONE" . (:foreground "LimeGreen" :weight bold))
         ("OBE" . (:foreground "LimeGreen" :weight bold))
-        ("BLOCKED" . (:foreground "IndianRed1" :weight bold))                
+        ("BLOCKED" . (:foreground "IndianRed1" :weight bold))
         ))
 
 ;; Tags
@@ -245,8 +297,9 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                       ("frontend" . ?f)
                       ("QA" . ?q)
                       ("big-sprint-review" . ?w)
-                      ("sprint-retro" . ?r)                      
+                      ("sprint-retro" . ?r)
                       ("planning" . ?p)
+                      ("grooming" . ?g)
                       ))
 
 ;; Tag colors
@@ -255,13 +308,13 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         ("planning" . (:foreground "purple" :weight bold))
         ("backend" . (:foreground "blue1" :weight bold))
         ("frontend" . (:foreground "forest green" :weight bold))
-        ("QA" . (:foreground "sienna" :weight bold))                        
+        ("QA" . (:foreground "sienna" :weight bold))
         )
       )
 
 ;; journal settings
 (setq org-capture-templates
-      '(    
+      '(
         ("c" "Code To-Do"
          entry (file+headline "~/org/todos.org" "Code Related Tasks")
          "* TODO [#B] %?\n:Created: %T\n%i\n%a\nResolution: "
@@ -271,17 +324,17 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
          entry (file+headline "~/org/todos.org" "General Tasks")
          "* TODO [#B] %?\n:Created: %T\n\nResolution: "
          :empty-lines 1)
-        
+
         ("j" "Work Journal Entry"
          entry (file+datetree "~/org/work-log.org")
          "* %?"
          :empty-lines 0)
-        
+
         ("m" "Meeting"
          entry (file "~/org/meetings.org")
-         "* %? %^g\n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "         
+         "* %? %^g\n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
          :empty-lines 1)
-        
+
         ("n" "Note"
          entry (file+headline "~/org/notes.org" "Random Notes")
          "** %?"
@@ -321,20 +374,20 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 (add-hook 'org-mode-hook 'visual-line-mode)
 
-  ;; (custom-theme-set-faces
-  ;;  'user
-  ;;  '(org-block ((t (:inherit fixed-pitch))))
-  ;;  '(org-code ((t (:inherit (shadow fixed-pitch)))))
-  ;;  '(org-document-info ((t (:foreground "dark orange"))))
-  ;;  '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-  ;;  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
-  ;;  '(org-link ((t (:foreground "royal blue" :underline t))))
-  ;;  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-  ;;  '(org-property-value ((t (:inherit fixed-pitch))) t)
-  ;;  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-  ;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
-  ;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-  ;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+;; (custom-theme-set-faces
+;;  'user
+;;  '(org-block ((t (:inherit fixed-pitch))))
+;;  '(org-code ((t (:inherit (shadow fixed-pitch)))))
+;;  '(org-document-info ((t (:foreground "dark orange"))))
+;;  '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+;;  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+;;  '(org-link ((t (:foreground "royal blue" :underline t))))
+;;  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+;;  '(org-property-value ((t (:inherit fixed-pitch))) t)
+;;  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -398,9 +451,9 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; ruby hooks
 ;; (eval-after-load "ruby-mode"
 ;;   '(progn
-;;      '(add-hook 'ruby-mode-hook 'ruby-electric-mode)         
-;;      '(add-hook 'ruby-mode-hook 'ruby-extra-highlight-mode) 
-;; ;;     '(add-hook 'ruby-mode-hook #'ruby-extra-highlight-mode) 
+;;      '(add-hook 'ruby-mode-hook 'ruby-electric-mode)
+;;      '(add-hook 'ruby-mode-hook 'ruby-extra-highlight-mode)
+;; ;;     '(add-hook 'ruby-mode-hook #'ruby-extra-highlight-mode)
 ;;      '(add-hook 'ruby-mode-hook 'seeing-is-believing)
 ;;      '(add-hook 'ruby-mode-hook 'ruby-test-mode)
 ;;      )
@@ -479,13 +532,13 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; # frozen_string_literal: true
 ;; # Copyright © 2009-2021 by Metova Federal, LLC.  All rights reserved
 (fset 'insert-metova-copyright
-   (kmacro-lambda-form [escape ?< ?# ?  ?f ?r ?o ?z ?e ?n ?_ ?s ?t ?r ?i ?n ?g ?_ ?l ?i ?t ?e ?r ?a ?l ?: ?  ?t ?r ?u ?e return return ?# ?  ?C ?o ?p ?y ?r ?i ?g ?h ?t ?  ?© ?  ?2 ?0 ?0 ?9 ?- ?2 ?0 ?2 ?1 ?  ?b ?y ?  ?M ?e ?t ?o ?v ?a ?  ?F ?e ?d ?e ?r ?a ?l ?, ?  ?L ?L ?C ?. ?  ?A backspace ?  ?A ?l ?l ?  ?r ?i ?g ?h ?t ?s ?  ?r ?e ?s ?e ?r ?v ?e ?d return return] 0 "%d"))
+      (kmacro-lambda-form [escape ?< ?# ?  ?f ?r ?o ?z ?e ?n ?_ ?s ?t ?r ?i ?n ?g ?_ ?l ?i ?t ?e ?r ?a ?l ?: ?  ?t ?r ?u ?e return return ?# ?  ?C ?o ?p ?y ?r ?i ?g ?h ?t ?  ?© ?  ?2 ?0 ?0 ?9 ?- ?2 ?0 ?2 ?1 ?  ?b ?y ?  ?M ?e ?t ?o ?v ?a ?  ?F ?e ?d ?e ?r ?a ?l ?, ?  ?L ?L ?C ?. ?  ?A backspace ?  ?A ?l ?l ?  ?r ?i ?g ?h ?t ?s ?  ?r ?e ?s ?e ?r ?v ?e ?d return return] 0 "%d"))
 
 
 
 
 ;;-------------------------------------------------------------------------------------------
-;; PYTHON 
+;; PYTHON
 ;;-------------------------------------------------------------------------------------------
 (add-hook 'python-mode-hook 'blacken-mode)
 (require 'pyimpsort)
@@ -520,8 +573,8 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;;(elpy-enable)
 ;;(add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
 
-(elpy-enable)  
-(setq elpy-rpc-backend "jedi")  
+(elpy-enable)
+(setq elpy-rpc-backend "jedi")
 (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
 
 ;; Enable Flycheck
@@ -619,5 +672,3 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
-
-
