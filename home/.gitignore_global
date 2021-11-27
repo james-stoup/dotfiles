@@ -290,3 +290,11 @@ Gemfile.lock
 .solargraph.yml
 
 \#*
+
+
+.emacs.d/bookmarks
+.emacs.d/history
+.emacs.d/master-elpa
+.emacs.d/personal-elpa
+.emacs.d/places
+
