@@ -195,8 +195,33 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                    ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
                                                    (air-org-skip-subtree-if-priority ?A)
                                                    (org-agenda-skip-if nil '(scheduled deadline))))
-                    (org-agenda-overriding-header "\n==================================================================\n\nALL normal priority tasks:"))))
-         ((org-agenda-compact-blocks t)))))
+
+                    (org-agenda-overriding-header "ALL normal priority tasks:")))
+          (tags "PRIORITY=\"C\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "Low-priority Unfinished tasks:")))          
+          )
+         ((org-agenda-compact-blocks nil)))))
+
+;; Agenda View "g"
+(setq org-agenda-custom-commands
+      '(("g" . "GTD contexts")
+        ("gp" "Planning" tags-todo "planning")
+        ("gb" "Backend" tags-todo "backend")
+        ("G" "GTD Block Agenda"
+         ((todo "IN-PROGRESS")
+          )
+         ((org-agenda-prefix-format "[ ] %T: ")
+          (org-agenda-with-colors t)
+          (org-agenda-compact-blocks t)
+          (org-agenda-remove-tags t)
+          (ps-number-of-columns 2)
+          (ps-landscape-mode t))
+         ;;nil                      ;; i.e., no local settings
+         ("~/next-actions.txt"))
+        )
+      )
+>>>>>>> Stashed changes
 ;; End Agenda hacks
 
 ;; Must do this so org knows where to look
@@ -223,8 +248,18 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; journal settings
 (setq org-capture-templates
       '(    
+        ("c" "Code To-Do"
+         entry (file+headline "~/org/todos.org" "Code Related Tasks")
+         "* TODO [#B] %?\n:Created: %T\n%i\n%a\nResolution: "
+         :empty-lines 1)
+
+        ("g" "General To-Do"
+         entry (file+headline "~/org/todos.org" "General Tasks")
+         "* TODO [#B] %?\n:Created: %T\n\nResolution: "
+         :empty-lines 1)
+        
         ("j" "Journal Entry"
-         entry (file+olp+datetree "~/org/journal.org")
+         entry (file+datetree "~/org/journal.org")
          "* %?"
          :empty-lines 0)
         
@@ -552,3 +587,6 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
     (package-install package)))
 
 
+(load (expand-file-name "~/.quicklisp/slime-helper.el"))
+;; Replace "sbcl" with the path to your implementation
+(setq inferior-lisp-program "sbcl")

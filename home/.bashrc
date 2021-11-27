@@ -87,9 +87,9 @@ function _git_prompt() {
 _vpn_prompt() {
     local vpn_status=`nordvpn status | grep Status | cut -d ":" -f2`
     if [[ "$vpn_status" == " Connected" ]]; then
-        echo -n "(\[\033[0;32m\]\u - \t\[\033[0;30m\])\n  [\[\033[0;34m\]\w\[\033[0;30m\]]\$ "        
+        echo -n "(\[\033[0;32m\]\u - \t\[\033[0;97m\])\n  [\[\033[0;34m\]\w\[\033[0;97m\]]\$ "        
     else
-        echo -n "(\[\033[0;31m\]\u - \t\[\033[0;30m\])\n  [\[\033[0;34m\]\w\[\033[0;30m\]]\$ "        
+        echo -n "(\[\033[0;31m\]\u - \t\[\033[0;97m\])\n  [\[\033[0;34m\]\w\[\033[0;97m\]]\$ "        
     fi
     
 }
