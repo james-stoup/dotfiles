@@ -136,7 +136,7 @@
 (setq paradox-github-token "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")
 
 ;; Adding pretty icons
-(mode-icons-mode)
+;;(mode-icons-mode) ;; don't like the icon for ruby, change that if I decide to keep this
 
 ;; Auto format on save
 (format-all-mode)
@@ -170,20 +170,29 @@
 
 ;; Must do this so org knows where to look
 (setq org-agenda-files '("~/org"))
-(setq org-log-done t)
+;;(setq org-log-done t)
+(setq org-log-done 'time)
+
+(setq org-return-follows-link  t)
 
 ;; All org files
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 (add-hook 'org-mode-hook 'org-indent-mode)
+;;(add-hook 'org-mode-hook 'org-superstar-mode)
 
 ;; Remap the change priority keys
 (define-key org-mode-map (kbd "C-c <up>") 'org-priority-up)
 (define-key org-mode-map (kbd "C-c <down>") 'org-priority-down)
+(define-key org-mode-map (kbd "C-c C-g C-r") 'org-shiftmetaright)
 
 ;; Shortcuts
 (define-key global-map "\C-cl" 'org-store-link)
 (define-key global-map "\C-ca" 'org-agenda)
 (define-key global-map "\C-cc" 'org-capture)
+
+(setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
+
+(org-super-agenda-mode)
 
 ;;;; Agenda hacks ;;;;
 
@@ -206,15 +215,15 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         subtree-end
       nil)))
 
-(setq org-agenda-start-day "-1d")
 (setq org-agenda-skip-deadline-if-done t)
 
 (setq org-agenda-custom-commands
-      '(("d" "Daily agenda and all TODOs"
+      '(
+        ("d" "Daily agenda and all TODOs"
          ((tags "PRIORITY=\"A\""
                 ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
-                 (org-agenda-overriding-header "\nHigh-priority unfinished tasks:")))
-          (agenda "" ((org-agenda-span 5)))
+                 (org-agenda-overriding-header "High-priority unfinished tasks:")))
+          (agenda "" ((org-agenda-span 7)))
           (alltodo ""
                    ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
                                                    (air-org-skip-subtree-if-priority ?A)
@@ -225,28 +234,23 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                 ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
                  (org-agenda-overriding-header "Low-priority Unfinished tasks:")))
           )
-         ((org-agenda-compact-blocks nil)))))
+         ((org-agenda-compact-blocks nil)))
 
+        ("w" "Weekly review"
+         agenda ""
+         ((org-agenda-span 7)
+          (org-agenda-start-on-weekday 1)
+          (org-agenda-start-with-log-mode '(closed))
+          (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE "))))
 
-;; Agenda View "w"
-(add-to-list 'org-agenda-custom-commands
-             '("w" "Weekly review"
-               agenda ""
-               ((org-agenda-span 7)
-                (org-agenda-start-on-weekday 1)
-                (org-agenda-start-with-log-mode '(closed))
-                (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE ")))))
-
-;; Agenda View "c"
-(add-to-list 'org-agenda-custom-commands
-             '("c" "Closed items"
-               agenda ""
-               ((org-agenda-span 7)
-                (org-agenda-start-on-weekday 1)
+        ("c" "Closed items"
+         agenda ""
+         ((org-agenda-span 7)
+          (org-agenda-start-on-weekday 1)
                                         ;(org-agenda-start-with-log-mode '(closed))
-                (org-agenda-log-mode-items '(closed))
-                )))
-
+          (org-agenda-log-mode-items '(closed))
+          ))
+        ))
 
 
 ;; Agenda View "g"
@@ -272,34 +276,51 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 ;; End Agenda hacks
 
+
 ;; TODO states
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "IN-PROGRESS(i@/!)" "VERIFY(v!)" "|" "DONE(d!)" "OBE(o!)" "BLOCKED(b@)")
+      '((sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFY(v!)" "BLOCKED(b@)" "MEETING(m)" "|" "DONE(d!)" "OBE(o!)" "WON'T DO(w@/!)" "MEETING-OVER(n)")
         ))
 
 ;; TODO colors
 (setq org-todo-keyword-faces
-      '(("TODO" . (:foreground "GoldenRod" :weight bold))
-        ("IN-PROGRESS" . (:foreground "OrangeRed" :weight bold))
-        ("VERIFY" . (:foreground "IndianRed1" :weight bold))
+      '(
+        ("TODO" . (:foreground "GoldenRod" :weight bold))
+        ("PLANNING" . (:foreground "DeepPink" :weight bold))
+        ("IN-PROGRESS" . (:foreground "Cyan" :weight bold))
+        ("VERIFY" . (:foreground "DarkOrange" :weight bold))
+        ("BLOCKED" . (:foreground "Red" :weight bold))
         ("DONE" . (:foreground "LimeGreen" :weight bold))
         ("OBE" . (:foreground "LimeGreen" :weight bold))
-        ("BLOCKED" . (:foreground "IndianRed1" :weight bold))
+        ("WON'T DO" . (:foreground "LimeGreen" :weight bold))
+        ("MEETING" . (:foreground "Yellow1" :weight bold))
+        ("MEETING-OVER" . (:foreground "Yellow3" :weight bold))                
         ))
 
 ;; Tags
 (setq org-tag-alist '((:startgroup . nil)
-                      ("@story" . ?s) ("@bug" . ?b) ("@task" . ?t) ("@subtask" . ?u)
+                      ("@story" . ?s)
+                      ("@bug" . ?b)
+                      ("@task" . ?t)
+                      ("@subtask" . ?u)
                       (:endgroup . nil)
-                      ("misc" . ?m)
-                      ("HR" . ?h)
-                      ("backend" . ?k)
-                      ("frontend" . ?f)
-                      ("QA" . ?q)
+
+                      (:startgroup . nil)
                       ("big-sprint-review" . ?w)
                       ("sprint-retro" . ?r)
-                      ("planning" . ?p)
+                      ("cents-sprint-retro" . ?c)
+                      (:endgroup . nil)
+
+                      ("meeting" . ?m)
+                      ("HR" . ?h)
+                      ("QA" . ?q)
+                      ("backend" . ?k)
+                      ("frontend" . ?f)
                       ("grooming" . ?g)
+                      ("misc" . ?z)
+                      ("planning" . ?p)
+                      ("dsu" . ?d)
+                      ("obstacle" . ?o)
                       ))
 
 ;; Tag colors
@@ -317,13 +338,13 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
       '(
         ("c" "Code To-Do"
          entry (file+headline "~/org/todos.org" "Code Related Tasks")
-         "* TODO [#B] %?\n:Created: %T\n%i\n%a\nResolution: "
-         :empty-lines 1)
+         "* TODO [#B] %?\n:Created: %T\n%i\n%a\n"
+         :empty-lines 0)
 
         ("g" "General To-Do"
          entry (file+headline "~/org/todos.org" "General Tasks")
          "* TODO [#B] %?\n:Created: %T\n\nResolution: "
-         :empty-lines 1)
+         :empty-lines 0)
 
         ("j" "Work Journal Entry"
          entry (file+datetree "~/org/work-log.org")
@@ -331,20 +352,26 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
          :empty-lines 0)
 
         ("m" "Meeting"
-         entry (file "~/org/meetings.org")
-         "* %? %^g\n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
-         :empty-lines 1)
+         entry (file+datetree "~/org/meetings.org")
+         "* MEETING %? :meeting:%^g \n:Runtime: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
+         :tree-type week
+         :clock-in t
+         :clock-resume t
+         :empty-lines 0)
 
         ("n" "Note"
          entry (file+headline "~/org/notes.org" "Random Notes")
          "** %?"
-         :empty-lines 1)
+         :empty-lines 0)
 
         ("t" "Ticket"
-         entry (file "~/org/tickets.org" )
-         "* TODO %?\nCreated: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verify\n** Subtasks"
-         :empty-lines 1)
+         entry (file+headline "~/org/tickets.org" "Tickets")
+         "* TODO [#B] %?\nCreated: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verify\n** Subtasks"
+         :empty-lines 0)
 
+        ("s" "Sprint"
+         entry (file "~/org/sprints.org" )
+         "** TODO Sprint %?\n:Created: %T\nSCHEDULED: %T\nDEADLINE: %T\n*** Workload\n- [ ]\n*** Points ")
         ))
 
 ;; Make org look better
@@ -366,10 +393,10 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
    `(org-level-7 ((t (,@headline ,@variable-tuple))))
    `(org-level-6 ((t (,@headline ,@variable-tuple))))
    `(org-level-5 ((t (,@headline ,@variable-tuple))))
-   `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.0))))
-   `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.0))))
-   `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.1))))
-   `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.4))))
+   `(org-level-4 ((t (,@headline ,@variable-tuple :height 1.1))))
+   `(org-level-3 ((t (,@headline ,@variable-tuple :height 1.2))))
+   `(org-level-2 ((t (,@headline ,@variable-tuple :height 1.3))))
+   `(org-level-1 ((t (,@headline ,@variable-tuple :height 1.5))))
    `(org-document-title ((t (,@headline ,@variable-tuple :height 1.6 :underline nil))))))
 
 (add-hook 'org-mode-hook 'visual-line-mode)
@@ -388,6 +415,52 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
 ;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
 ;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+
+
+
+;; Org Super Agenda Groups
+(let ((org-super-agenda-groups
+       '(;; Each group has an implicit boolean OR operator between its selectors.
+         (:name "TODO"  ; Optionally specify section name
+                :time-grid t  ; Items that appear on the time grid
+                :todo "TODO")  ; Items that have this TODO keyword
+         (:name "Meeting TODOs"
+                ;; Single arguments given alone
+                :tag "meeting"
+                :priority "A")
+         ;; Set order of multiple groups at once
+         ;; (:order-multi (2 (:name "Shopping in town"
+         ;;                         ;; Boolean AND group matches items that match all subgroups
+         ;;                         :and (:tag "shopping" :tag "@town"))
+         ;;                  (:name "Food-related"
+         ;;                         ;; Multiple args given in list with implicit OR
+         ;;                         :tag ("food" "dinner"))
+         ;;                  (:name "Personal"
+         ;;                         :habit t
+         ;;                         :tag "personal")
+         ;;                  (:name "Space-related (non-moon-or-planet-related)"
+         ;;                         ;; Regexps match case-insensitively on the entire entry
+         ;;                         :and (:regexp ("space" "NASA")
+         ;;                                       ;; Boolean NOT also has implicit OR between selectors
+         ;;                                       :not (:regexp "moon" :tag "planet")))))
+         ;; ;; Groups supply their own section names when none are given
+         ;; (:todo "WAITING" :order 8)  ; Set order of this section
+         ;; (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
+         ;;        ;; Show this group at the end of the agenda (since it has the
+         ;;        ;; highest number). If you specified this group last, items
+         ;;        ;; with these todo keywords that e.g. have priority A would be
+         ;;        ;; displayed in that group instead, because items are grouped
+         ;;        ;; out in the order the groups are listed.
+         ;;        :order 9)
+         ;; (:priority<= "B"
+         ;;              ;; Show this section after "Today" and "Important", because
+         ;;              ;; their order is unspecified, defaulting to 0. Sections
+         ;;              ;; are displayed lowest-number-first.
+         ;;              :order 1)
+         ;; After the last group, the agenda will display items that didn't
+         ;; match any of these groups, with the default order position of 99
+         )))
+  (org-agenda nil "a"))
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -447,6 +520,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 (add-hook 'ruby-mode-hook #'eldoc-mode)
 (add-hook 'ruby-mode-hook #'which-key-mode)
 (add-hook 'ruby-mode-hook #'fic-mode) ;; Highlights BUG, TODO, and FIXME
+
 
 ;; ruby hooks
 ;; (eval-after-load "ruby-mode"
