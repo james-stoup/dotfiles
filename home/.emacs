@@ -133,7 +133,6 @@
 ;; Replace package manager with something better
 (require 'paradox)
 (paradox-enable)
-(setq paradox-github-token "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")
 
 ;; Adding pretty icons
 ;;(mode-icons-mode) ;; don't like the icon for ruby, change that if I decide to keep this
@@ -178,7 +177,6 @@
 ;; All org files
 (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
 (add-hook 'org-mode-hook 'org-indent-mode)
-;;(add-hook 'org-mode-hook 'org-superstar-mode)
 
 ;; Remap the change priority keys
 (define-key org-mode-map (kbd "C-c <up>") 'org-priority-up)
@@ -192,7 +190,7 @@
 
 (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
 
-(org-super-agenda-mode)
+
 
 ;;;; Agenda hacks ;;;;
 
@@ -219,14 +217,14 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 (setq org-agenda-custom-commands
       '(
+        ;; Daily Agenda - most used
         ("d" "Daily agenda and all TODOs"
          ((tags "PRIORITY=\"A\""
                 ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
                  (org-agenda-overriding-header "High-priority unfinished tasks:")))
           (agenda "" ((org-agenda-span 7)))
           (alltodo ""
-                   ((org-agenda-skip-function '(or (air-org-skip-subtree-if-habit)
-                                                   (air-org-skip-subtree-if-priority ?A)
+                   ((org-agenda-skip-function '(or (air-org-skip-subtree-if-priority ?A)
                                                    (air-org-skip-subtree-if-priority ?C)
                                                    (org-agenda-skip-if nil '(scheduled deadline))))
                     (org-agenda-overriding-header "ALL normal priority tasks:")))
@@ -236,6 +234,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
           )
          ((org-agenda-compact-blocks nil)))
 
+        ;; Weekly Review - look at the week
         ("w" "Weekly review"
          agenda ""
          ((org-agenda-span 7)
@@ -243,6 +242,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
           (org-agenda-start-with-log-mode '(closed))
           (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE "))))
 
+        ;; Closed Items - see what I accomplished
         ("c" "Closed items"
          agenda ""
          ((org-agenda-span 7)
@@ -250,8 +250,94 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                                         ;(org-agenda-start-with-log-mode '(closed))
           (org-agenda-log-mode-items '(closed))
           ))
-        ))
 
+        ;; James's Super View
+        ("j" "James's Super View"
+         (
+          (agenda ""
+                  (
+                   (org-agenda-remove-tags t)                                       
+                   (org-agenda-span 7)
+                   ;;(org-agenda-prefix-format "  %t  s")
+                   )
+                  )
+
+          (alltodo ""
+                   (
+                    (org-agenda-remove-tags t)                    
+                    (org-agenda-overriding-header "CURRENT STATUS")
+                    (org-super-agenda-groups
+                     '(
+                       (:name "Critical Tasks"
+                              :tag "CRITICAL"
+                              :order 0
+                              )
+                       (:name "Currently Working"
+                              :todo "IN-PROGRESS"
+                              :todo "PLANNING"                              
+                              :order 1
+                              )
+                       (:name "Problems & Blockers"
+                              :todo "BLOCKED"
+                              :tag "obstacle"                              
+                              :order 2
+                              )
+                       (:name "Tickets to Create"
+                              :tag "@write_future_ticket"
+                              :order 3
+                              )
+                       (:name "Research Required"
+                              :tag "@research"
+                              :order 7
+                              )
+                       (:name "Meeting Action Items"
+                              :and (:tag "meeting" :priority "A")
+                              :order 8
+                              )
+                       (:name "Other Important Items"
+                              :and (:todo "TODO" :priority "A" :not (:tag "meeting"))
+                              :order 9
+                              )
+                       (:name "General Backlog"
+                              :and (:todo "TODO" :priority "B")
+                              :order 10
+                              )
+                       (:name "Non Critical"
+                              :priority<= "C"
+                              :order 11
+                              )
+                       (:name "Currently Being Verified"
+                              :todo "VERIFY"
+                              :order 20
+                              )
+                       )
+                     )
+                    )
+                   )
+          ))
+        
+        ;; Current progress - see what I'm currently doing
+        ("i" "Items Currently Working"
+         (
+          (todo "IN-PROGRESS"
+                (
+                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "\\[#[ABC]\\]"))
+                 (org-agenda-overriding-header "Currently Working:")
+                 )
+                )
+
+          (tags "meeting"
+                (
+                 (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "\\[#[ABC]\\]" 'todo '("IN-PROGRESS" "DONE" "OBE" "WONT-DO")))
+                 (org-agenda-overriding-header "Meeting Action Items:")
+                 )
+                )
+          
+          (agenda "" ((org-agenda-span 1)))
+          )
+         ((org-agenda-compact-blocks nil)))
+        
+        ))
 
 ;; Agenda View "g"
 ;; (setq org-agenda-custom-commands
@@ -279,7 +365,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 ;; TODO states
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFY(v!)" "BLOCKED(b@)" "MEETING(m)" "|" "DONE(d!)" "OBE(o!)" "WON'T DO(w@/!)" "MEETING-OVER(n)")
+      '((sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFY(v!)" "BLOCKED(b@)"  "|" "DONE(d!)" "OBE(o@!)" "WONT-DO(w@/!)" )
         ))
 
 ;; TODO colors
@@ -292,44 +378,60 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         ("BLOCKED" . (:foreground "Red" :weight bold))
         ("DONE" . (:foreground "LimeGreen" :weight bold))
         ("OBE" . (:foreground "LimeGreen" :weight bold))
-        ("WON'T DO" . (:foreground "LimeGreen" :weight bold))
-        ("MEETING" . (:foreground "Yellow1" :weight bold))
-        ("MEETING-OVER" . (:foreground "Yellow3" :weight bold))                
+        ("WONT-DO" . (:foreground "LimeGreen" :weight bold))
         ))
 
 ;; Tags
-(setq org-tag-alist '((:startgroup . nil)
-                      ("@story" . ?s)
-                      ("@bug" . ?b)
-                      ("@task" . ?t)
-                      ("@subtask" . ?u)
-                      (:endgroup . nil)
-
+(setq org-tag-alist '(
+                      ;; TODO critical types
                       (:startgroup . nil)
-                      ("big-sprint-review" . ?w)
-                      ("sprint-retro" . ?r)
-                      ("cents-sprint-retro" . ?c)
+                      ("@write_future_ticket" . ?t)
+                      ("@emergency" . ?e)
+                      ("@research" . ?r)
+                      ("@bug" . ?b)
+                      ("@feature" . ?u)
                       (:endgroup . nil)
 
-                      ("meeting" . ?m)
-                      ("HR" . ?h)
+                      ;; Meeting types
+                      (:startgroup . nil)
+                      ("big_sprint_review" . ?i)
+                      ("cents_sprint_retro" . ?n)
+                      ("dsu" . ?d)
+                      ("grooming" . ?g)
+                      ("sprint_retro" . ?s)
+                      (:endgroup . nil)
+
+                      ;; Code TODOs tags
                       ("QA" . ?q)
                       ("backend" . ?k)
+                      ("broken_code" . ?c)
                       ("frontend" . ?f)
-                      ("grooming" . ?g)
+
+                      ;; Special tags
+                      ("CRITICAL" . ?x)
+                      ("obstacle" . ?o)
+                      
+                      ;; Meeting tags
+                      ("HR" . ?h)
+                      ("general" . ?l)
+                      ("meeting" . ?m)
+                      ("mike" . ?w)
                       ("misc" . ?z)
                       ("planning" . ?p)
-                      ("dsu" . ?d)
-                      ("obstacle" . ?o)
+
+                      ;; Work Log Tags
+                      ("accomplishment" . ?a)
                       ))
 
 ;; Tag colors
 (setq org-tag-faces
       '(
-        ("planning" . (:foreground "purple" :weight bold))
-        ("backend" . (:foreground "blue1" :weight bold))
+        ("planning" . (:foreground "mediumPurple1" :weight bold))
+        ("backend" . (:foreground "royalblue1" :weight bold))
         ("frontend" . (:foreground "forest green" :weight bold))
         ("QA" . (:foreground "sienna" :weight bold))
+        ("meeting" . (:foreground "yellow1" :weight bold))
+        ("CRITICAL" . (:foreground "red1" :weight bold))
         )
       )
 
@@ -338,12 +440,12 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
       '(
         ("c" "Code To-Do"
          entry (file+headline "~/org/todos.org" "Code Related Tasks")
-         "* TODO [#B] %?\n:Created: %T\n%i\n%a\n"
+         "* TODO [#B] %? :broken_code:%^g\n:Created: %T\n%i\n%a\n"
          :empty-lines 0)
 
         ("g" "General To-Do"
          entry (file+headline "~/org/todos.org" "General Tasks")
-         "* TODO [#B] %?\n:Created: %T\n\nResolution: "
+         "* TODO [#B] %? :general:%^g\n:Created: %T\n"
          :empty-lines 0)
 
         ("j" "Work Journal Entry"
@@ -353,7 +455,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("m" "Meeting"
          entry (file+datetree "~/org/meetings.org")
-         "* MEETING %? :meeting:%^g \n:Runtime: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
+         "* %? :meeting:%^g \n:Runtime: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
          :tree-type week
          :clock-in t
          :clock-resume t
@@ -366,7 +468,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("t" "Ticket"
          entry (file+headline "~/org/tickets.org" "Tickets")
-         "* TODO [#B] %?\nCreated: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verify\n** Subtasks"
+         "* TODO [#B] %? %^g\nCreated: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verify\n** Subtasks"
          :empty-lines 0)
 
         ("s" "Sprint"
@@ -416,51 +518,6 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
 ;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
 
-
-
-;; Org Super Agenda Groups
-(let ((org-super-agenda-groups
-       '(;; Each group has an implicit boolean OR operator between its selectors.
-         (:name "TODO"  ; Optionally specify section name
-                :time-grid t  ; Items that appear on the time grid
-                :todo "TODO")  ; Items that have this TODO keyword
-         (:name "Meeting TODOs"
-                ;; Single arguments given alone
-                :tag "meeting"
-                :priority "A")
-         ;; Set order of multiple groups at once
-         ;; (:order-multi (2 (:name "Shopping in town"
-         ;;                         ;; Boolean AND group matches items that match all subgroups
-         ;;                         :and (:tag "shopping" :tag "@town"))
-         ;;                  (:name "Food-related"
-         ;;                         ;; Multiple args given in list with implicit OR
-         ;;                         :tag ("food" "dinner"))
-         ;;                  (:name "Personal"
-         ;;                         :habit t
-         ;;                         :tag "personal")
-         ;;                  (:name "Space-related (non-moon-or-planet-related)"
-         ;;                         ;; Regexps match case-insensitively on the entire entry
-         ;;                         :and (:regexp ("space" "NASA")
-         ;;                                       ;; Boolean NOT also has implicit OR between selectors
-         ;;                                       :not (:regexp "moon" :tag "planet")))))
-         ;; ;; Groups supply their own section names when none are given
-         ;; (:todo "WAITING" :order 8)  ; Set order of this section
-         ;; (:todo ("SOMEDAY" "TO-READ" "CHECK" "TO-WATCH" "WATCHING")
-         ;;        ;; Show this group at the end of the agenda (since it has the
-         ;;        ;; highest number). If you specified this group last, items
-         ;;        ;; with these todo keywords that e.g. have priority A would be
-         ;;        ;; displayed in that group instead, because items are grouped
-         ;;        ;; out in the order the groups are listed.
-         ;;        :order 9)
-         ;; (:priority<= "B"
-         ;;              ;; Show this section after "Today" and "Important", because
-         ;;              ;; their order is unspecified, defaulting to 0. Sections
-         ;;              ;; are displayed lowest-number-first.
-         ;;              :order 1)
-         ;; After the last group, the agenda will display items that didn't
-         ;; match any of these groups, with the default order position of 99
-         )))
-  (org-agenda nil "a"))
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -610,11 +667,56 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 
 
+;;-------------------------------------------------------------------------------------------
+;; GIT
+;;-------------------------------------------------------------------------------------------
+;; Git Gutter
+;(require 'git-gutter)
+
+;; If you enable global minor mode
+;(global-git-gutter-mode t)
+
+;; If you enable git-gutter-mode for some modes
+;(add-hook 'ruby-mode-hook 'git-gutter-mode)
+;(add-hook 'python-mode-hook 'git-gutter-mode)
+
+(global-set-key (kbd "C-x C-g") 'git-gutter)
+(global-set-key (kbd "C-x v =") 'git-gutter:popup-hunk)
+
+;; Jump to next/previous hunk
+(global-set-key (kbd "C-x p") 'git-gutter:previous-hunk)
+(global-set-key (kbd "C-x n") 'git-gutter:next-hunk)
+
+;; Stage current hunk
+(global-set-key (kbd "C-x v s") 'git-gutter:stage-hunk)
+
+;; Revert current hunk
+(global-set-key (kbd "C-x v r") 'git-gutter:revert-hunk)
+
+;; Mark current hunk
+(global-set-key (kbd "C-x v SPC") #'git-gutter:mark-hunk)
+
+
+;; Mo Git Blame
+; add config here
 
 ;;-------------------------------------------------------------------------------------------
 ;; PYTHON
 ;;-------------------------------------------------------------------------------------------
+;; LSP Pyright
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))  ; or lsp-deferred
+
+(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+(setq py-autopep8-options '("--max-line-length=120"))
+
+;; Blacken
 (add-hook 'python-mode-hook 'blacken-mode)
+
+;; Import sorter
 (require 'pyimpsort)
 (eval-after-load 'python
   '(define-key python-mode-map "\C-c\C-u" #'pyimpsort-buffer))
@@ -622,39 +724,40 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; Import Magic
 (add-hook 'python-mode-hook 'importmagic-mode)
 
-(defvar myPackages
-  '(better-defaults                 ;; Set up some better Emacs defaults
-    elpy                            ;; Emacs Lisp Python Environment
-    flycheck                        ;; On the fly syntax checking
-    ;;material-theme                  ;; Theme
-    blacken                         ;; Black formatting on save
-    magit                           ;; Git integration
-    )
-  )
 
-;; Scans the list in myPackages
-;; If the package listed is not already installed, install it
-(mapc #'(lambda (package)
-          (unless (package-installed-p package)
-            (package-install package)))
-      myPackages)
+;; (defvar myPackages
+;;   '(better-defaults                 ;; Set up some better Emacs defaults
+;;     elpy                            ;; Emacs Lisp Python Environment
+;;     flycheck                        ;; On the fly syntax checking
+;;     ;;material-theme                  ;; Theme
+;;     blacken                         ;; Black formatting on save
+;;     magit                           ;; Git integration
+;;     )
+;;   )
 
-(add-hook 'python-mode-hook 'jedi:setup)
-(setq jedi:setup-keys t)                      ; optional
-(setq jedi:complete-on-dot t)                 ; optional
+;; ;; Scans the list in myPackages
+;; ;; If the package listed is not already installed, install it
+;; (mapc #'(lambda (package)
+;;           (unless (package-installed-p package)
+;;             (package-install package)))
+;;       myPackages)
 
-;; Enable elpy
-;;(elpy-enable)
-;;(add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
+;; (add-hook 'python-mode-hook 'jedi:setup)
+;; (setq jedi:setup-keys t)                      ; optional
+;; (setq jedi:complete-on-dot t)                 ; optional
 
-(elpy-enable)
-(setq elpy-rpc-backend "jedi")
-(add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
+;; ;; Enable elpy
+;; ;;(elpy-enable)
+;; ;;(add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
+
+;; (elpy-enable)
+;; (setq elpy-rpc-backend "jedi")
+;; (add-hook 'elpy-mode-hook (lambda () (highlight-indentation-mode -1)))
 
 ;; Enable Flycheck
-(when (require 'flycheck nil t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode))
+;; (when (require 'flycheck nil t)
+;;   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+;;   (add-hook 'elpy-mode-hook 'flycheck-mode))
 
 ;; pipenv
 (use-package pipenv
