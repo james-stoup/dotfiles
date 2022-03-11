@@ -133,6 +133,7 @@
 ;; Replace package manager with something better
 (require 'paradox)
 (paradox-enable)
+(setq paradox-github-token "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")
 
 ;; Adding pretty icons
 ;;(mode-icons-mode) ;; don't like the icon for ruby, change that if I decide to keep this
@@ -166,6 +167,7 @@
 ;;-------------------------------------------------------------------------------------------
 (require 'org)
 (add-hook 'org-mode-hook (lambda () (org-autolist-mode)))
+(setq jiralib-url "https://cybercents.atlassian.net/")
 
 ;; Must do this so org knows where to look
 (setq org-agenda-files '("~/org"))
@@ -264,7 +266,8 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
           (alltodo ""
                    (
-                    (org-agenda-remove-tags t)                    
+                    (org-agenda-remove-tags t)
+                    (org-agenda-prefix-format "  %t  %s")                    
                     (org-agenda-overriding-header "CURRENT STATUS")
                     (org-super-agenda-groups
                      '(
@@ -274,17 +277,20 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                               )
                        (:name "Currently Working"
                               :todo "IN-PROGRESS"
-                              :todo "PLANNING"                              
                               :order 1
+                              )
+                       (:name "Planning Next Steps"
+                              :todo "PLANNING"
+                              :order 2
                               )
                        (:name "Problems & Blockers"
                               :todo "BLOCKED"
                               :tag "obstacle"                              
-                              :order 2
+                              :order 3
                               )
                        (:name "Tickets to Create"
                               :tag "@write_future_ticket"
-                              :order 3
+                              :order 4
                               )
                        (:name "Research Required"
                               :tag "@research"
@@ -307,7 +313,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                               :order 11
                               )
                        (:name "Currently Being Verified"
-                              :todo "VERIFY"
+                              :todo "VERIFYING"
                               :order 20
                               )
                        )
@@ -365,7 +371,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 ;; TODO states
 (setq org-todo-keywords
-      '((sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFY(v!)" "BLOCKED(b@)"  "|" "DONE(d!)" "OBE(o@!)" "WONT-DO(w@/!)" )
+      '((sequence "TODO(t)" "PLANNING(p)" "IN-PROGRESS(i@/!)" "VERIFYING(v!)" "BLOCKED(b@)"  "|" "DONE(d!)" "OBE(o@!)" "WONT-DO(w@/!)" )
         ))
 
 ;; TODO colors
@@ -374,7 +380,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         ("TODO" . (:foreground "GoldenRod" :weight bold))
         ("PLANNING" . (:foreground "DeepPink" :weight bold))
         ("IN-PROGRESS" . (:foreground "Cyan" :weight bold))
-        ("VERIFY" . (:foreground "DarkOrange" :weight bold))
+        ("VERIFYING" . (:foreground "DarkOrange" :weight bold))
         ("BLOCKED" . (:foreground "Red" :weight bold))
         ("DONE" . (:foreground "LimeGreen" :weight bold))
         ("OBE" . (:foreground "LimeGreen" :weight bold))
@@ -383,14 +389,17 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 ;; Tags
 (setq org-tag-alist '(
-                      ;; TODO critical types
+                      ;; Ticket types
                       (:startgroup . nil)
-                      ("@write_future_ticket" . ?t)
-                      ("@emergency" . ?e)
-                      ("@research" . ?r)
                       ("@bug" . ?b)
                       ("@feature" . ?u)
+                      ("@spike" . ?j)                      
                       (:endgroup . nil)
+
+                      ;; Ticket flags
+                      ("@write_future_ticket" . ?w)
+                      ("@emergency" . ?e)
+                      ("@research" . ?r)
 
                       ;; Meeting types
                       (:startgroup . nil)
@@ -415,7 +424,6 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                       ("HR" . ?h)
                       ("general" . ?l)
                       ("meeting" . ?m)
-                      ("mike" . ?w)
                       ("misc" . ?z)
                       ("planning" . ?p)
 
@@ -455,12 +463,18 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("m" "Meeting"
          entry (file+datetree "~/org/meetings.org")
-         "* %? :meeting:%^g \n:Runtime: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
+         "* %? :meeting:%^g \n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
          :tree-type week
          :clock-in t
          :clock-resume t
          :empty-lines 0)
 
+        ("s" "Scheduled Meeting"
+         entry (file+datetree "~/org/meetings.org")
+         "* %? :meeting:%^g \nMeetingTime: %^{MeetingTime}T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
+         :tree-type week
+         :empty-lines 0)
+        
         ("n" "Note"
          entry (file+headline "~/org/notes.org" "Random Notes")
          "** %?"
@@ -468,10 +482,10 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("t" "Ticket"
          entry (file+headline "~/org/tickets.org" "Tickets")
-         "* TODO [#B] %? %^g\nCreated: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verify\n** Subtasks"
+         "* TODO [#B] %? %^g\nCreated: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verifying\n** Subtasks"
          :empty-lines 0)
 
-        ("s" "Sprint"
+        ("p" "Sprint"
          entry (file "~/org/sprints.org" )
          "** TODO Sprint %?\n:Created: %T\nSCHEDULED: %T\nDEADLINE: %T\n*** Workload\n- [ ]\n*** Points ")
         ))
@@ -838,9 +852,15 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 
 ;;-------------------------------------------------------------------------------------------
-;; GOLANG
+;; C#
 ;;-------------------------------------------------------------------------------------------
+(use-package omnisharp
+  :after company
+  :config
+  (add-hook 'csharp-mode-hook 'omnisharp-mode)
+  (add-to-list 'company-backends 'company-omnisharp))
 
+(add-hook 'csharp-mode-hook 'flycheck-mode)
 
 
 ;;-------------------------------------------------------------------------------------------
