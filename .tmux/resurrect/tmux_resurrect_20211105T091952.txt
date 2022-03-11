@@ -1,0 +1,21 @@
+pane	0	1	:Backup-Restore-Service	0	:Z	0	:/home/jstoup/repos/slamr-backup-restore-service	1	bash	:emacs lib/cybercents/slamr/core/backuprestore/service/amqp/routes/restore/restore_controller/restore_start_controller.rb
+pane	0	1	:Backup-Restore-Service	0	:Z	1	:/home/jstoup	0	tail	:tail -100f /var/log/slamr/slamr-backup-restore-service/test/slamr_backup_restore_service.log
+pane	0	1	:Backup-Restore-Service	0	:Z	2	:/tmp/backup_restore_service/restore	0	bash	:
+pane	0	2	:Backup-Restore-Agent	0	:-Z	0	:/home/jstoup/repos/slamr-backup-restore-agent	1	bash	:emacs lib/cybercents/slamr/core/backuprestore/agent/amqp/routes/container/container_restore_listener.rb
+pane	0	2	:Backup-Restore-Agent	0	:-Z	1	:/home/jstoup/tcs/storage	0	bash	:
+pane	0	3	:dev-range-6	1	:*	0	:/home/jstoup/tcs/missing-files	0	ssh	:ssh cents@dev-range-6
+pane	0	3	:dev-range-6	1	:*	1	:/home/jstoup	0	ssh	:ssh cents@dev-range-6
+pane	0	3	:dev-range-6	1	:*	2	:/home/jstoup	1	ssh	:ssh cents@dev-range-6
+pane	0	4	:image-manager	0	:	0	:/home/jstoup/repos/slamr-image-manager	1	bash	:
+pane	0	4	:image-manager	0	:	1	:/home/jstoup	0	bash	:
+pane	0	5	:emacs	0	:	0	:/home/jstoup/repos	1	bash	:
+pane	0	6	:bash	0	:	0	:/home/jstoup/tcs/OLD/junk	1	bash	:
+pane	0	7	:bash	0	:	0	:/home/jstoup/repos/slamr-orchestration-service	1	bash	:
+window	0	1	0	:Z	1183,282x72,0,0{141x72,0,0,1,140x72,142,0[140x36,142,0,7,140x35,142,37,8]}
+window	0	2	0	:-Z	4bbe,282x72,0,0{141x72,0,0,2,140x72,142,0,10}
+window	0	3	1	:*	df87,282x72,0,0{141x72,0,0[141x36,0,0,3,141x35,0,37,23],140x72,142,0,19}
+window	0	4	0	:	cbc1,282x72,0,0{141x72,0,0,4,140x72,142,0,15}
+window	0	5	0	:	bba2,282x72,0,0,5
+window	0	6	0	:	bba6,282x72,0,0,9
+window	0	7	0	:	ddff,282x72,0,0,20
+state	0	

@@ -1,0 +1,25 @@
+pane	0	1	:Backup-Restore-Service	0	:	0	:/home/jstoup/repos/slamr-backup-restore-service	1	bash	:emacs lib/cybercents/slamr/core/backuprestore/service/amqp/routes/backup/backup_controller/backup_start_controller.rb
+pane	0	2	:Backup-Restore-Agent	0	:	0	:/home/jstoup/repos/slamr-backup-restore-agent	1	bash	:emacs lib/cybercents/slamr/core/backuprestore/agent/amqp/routes/status/status_backup_restore_listener.rb
+pane	0	2	:Backup-Restore-Agent	0	:	1	:/home/jstoup/BR_TEST_DATA/containers_test	0	bash	:
+pane	0	2	:Backup-Restore-Agent	0	:	2	:/home/jstoup/repos/slamr-backup-restore-agent	0	bash	:
+pane	0	3	:dev-range-6	1	:*	0	:/home/jstoup/tcs/missing-files	1	bash	:
+pane	0	3	:dev-range-6	1	:*	1	:/home/jstoup	0	bash	:
+pane	0	4	:comp-node-1	0	:-	0	:/home/jstoup/bin/setup_scripts	1	bash	:
+pane	0	4	:comp-node-1	0	:-	1	:/home/jstoup	0	bash	:
+pane	0	5	:project-manager	0	:	0	:/home/jstoup/repos/slamr-project-manager	0	bash	:emacs lib/cybercents/slamr/core/project_manager/amqp/routes/genisys_project/deploy_listener.rb
+pane	0	5	:project-manager	0	:	1	:/home/jstoup/repos/slamr-lookups-manager	1	less	:less lib/cybercents/slamr/core/lookups/manager/database/seeds/20210405_update_dmtypes.rb
+pane	0	6	:junk	0	:	0	:/home/jstoup/tcs/OLD/junk	1	bash	:
+pane	0	7	:VDA	0	:	0	:/home/jstoup/repos/slamr-virtual-device-agent	1	bash	:
+pane	0	8	:emacs	0	:	0	:/home/jstoup/tcs	1	emacs	:emacs -nw clean_me_up.json
+pane	0	9	:bash	0	:	0	:/home/jstoup	0	bash	:
+pane	0	9	:bash	0	:	1	:/home/jstoup	1	bash	:
+window	0	1	0	:	bb9e,282x72,0,0,1
+window	0	2	0	:	1185,282x72,0,0{141x72,0,0,2,140x72,142,0[140x36,142,0,3,140x35,142,37,4]}
+window	0	3	1	:*	ac85,282x72,0,0{153x72,0,0,5,128x72,154,0,7}
+window	0	4	0	:-	96d9,282x72,0,0{141x72,0,0,8,140x72,142,0,9}
+window	0	5	0	:	beaf,282x72,0,0{141x72,0,0,10,140x72,142,0,17}
+window	0	6	0	:	5e00,282x72,0,0,11
+window	0	7	0	:	5e01,282x72,0,0,12
+window	0	8	0	:	5e02,282x72,0,0,13
+window	0	9	0	:	c0b0,282x72,0,0{141x72,0,0,14,140x72,142,0,15}
+state	0	

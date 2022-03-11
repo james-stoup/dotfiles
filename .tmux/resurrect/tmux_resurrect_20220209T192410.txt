@@ -1,0 +1,22 @@
+pane	0	1	:Backup-Restore-Service	0	:	0	:/home/jstoup/repos/slamr-backup-restore-service	1	bash	:emacs lib/cybercents/slamr/core/backuprestore/service/amqp/routes/backup/backup_controller/backup_start_controller.rb
+pane	0	2	:Backup-Restore-Agent	0	:-	0	:/home/jstoup/repos/slamr-backup-restore-agent	1	bash	:emacs lib/cybercents/slamr/core/backuprestore/agent/utility/compression_mixin.rb
+pane	0	3	:dev-range-6	1	:*	0	:/home/jstoup	0	bash	:
+pane	0	3	:dev-range-6	1	:*	1	:/home/jstoup	1	bash	:
+pane	0	4	:comp-node-1	0	:	0	:/home/jstoup/bin/setup_scripts	1	bash	:
+pane	0	5	:emacs	0	:	0	:/home/jstoup	1	bash	:emacs org/meetings.org org/notes.org org/sprints.org org/tickets.org org/todos.org org/work-log.org
+pane	0	6	:junk	0	:	0	:/home/jstoup	1	irb	:irb
+pane	0	7	:bash	0	:	0	:/home/jstoup	1	bash	:
+pane	0	8	:Slamr-Image-Manager	0	:	0	:/home/jstoup/repos/slamr-image-manager	1	bash	:
+pane	0	9	:Virtual-Device-Manager	0	:	0	:/home/jstoup/repos/slamr-virtual-device-manager	1	bash	:
+pane	0	10	:Component-Template-Manager	0	:	0	:/home/jstoup/repos/slamr-component-template-manager	1	bash	:
+window	0	1	0	:	bb9e,282x72,0,0,1
+window	0	2	0	:-	bb9f,282x72,0,0,2
+window	0	3	1	:*	1b28,282x72,0,0[282x36,0,0,16,282x35,0,37,23]
+window	0	4	0	:	bba4,282x72,0,0,7
+window	0	5	0	:	bba6,282x72,0,0,9
+window	0	6	0	:	de03,282x72,0,0,24
+window	0	7	0	:	5e06,282x72,0,0,17
+window	0	8	0	:	5e07,282x72,0,0,18
+window	0	9	0	:	5e08,282x72,0,0,19
+window	0	10	0	:	ddff,282x72,0,0,20
+state	0	

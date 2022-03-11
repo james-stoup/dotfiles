@@ -1,0 +1,1 @@
+../.homesick/repos/dotfiles/home/.tmux-status/options.sh

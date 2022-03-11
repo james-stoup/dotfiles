@@ -1,0 +1,1 @@
+../../.homesick/repos/dotfiles/home/.tmux/resurrect/tmux_resurrect_20210829T215811.txt

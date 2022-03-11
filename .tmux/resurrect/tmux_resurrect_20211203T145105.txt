@@ -1,0 +1,25 @@
+pane	0	1	:Backup-Restore-Service	0	:-	0	:/home/jstoup/repos/slamr-backup-restore-service	1	bash	:
+pane	0	2	:Backup-Restore-Agent	0	:Z	0	:/home/jstoup/repos/slamr-backup-restore-agent	1	bash	:
+pane	0	2	:Backup-Restore-Agent	0	:Z	1	:/home/jstoup/BR_TEST_DATA/containers_test	0	bash	:
+pane	0	2	:Backup-Restore-Agent	0	:Z	2	:/home/jstoup/repos/slamr-backup-restore-agent	0	bash	:
+pane	0	3	:dev-range-6	0	:	0	:/home/jstoup/tcs/missing-files	0	bash	:
+pane	0	3	:dev-range-6	0	:	1	:/home/jstoup	0	bash	:
+pane	0	3	:dev-range-6	0	:	2	:/home/jstoup	1	ssh	:ssh cents@dev-range-6
+pane	0	4	:comp-node-1	0	:Z	0	:/home/jstoup/bin/setup_scripts	1	bash	:
+pane	0	4	:comp-node-1	0	:Z	1	:/home/jstoup	0	bash	:
+pane	0	5	:image-manager	0	:	0	:/home/jstoup/repos/slamr-image-manager	1	bash	:
+pane	0	6	:junk	0	:	0	:/home/jstoup/tcs/OLD/junk	1	bash	:
+pane	0	7	:VDA	0	:	0	:/home/jstoup/repos/slamr-virtual-device-agent	1	bash	:
+pane	0	8	:emacs	0	:	0	:/home/jstoup/tcs	1	emacs	:emacs -nw clean_me_up.json
+pane	0	9	:bash	1	:*	0	:/home/jstoup	0	bash	:
+pane	0	9	:bash	1	:*	1	:/home/jstoup	1	bash	:
+window	0	1	0	:-	bb9e,282x72,0,0,1
+window	0	2	0	:Z	2929,282x72,0,0{141x72,0,0,4,140x72,142,0[140x36,142,0,5,140x35,142,37,14]}
+window	0	3	0	:	7c39,282x72,0,0{153x72,0,0[153x36,0,0,6,153x35,0,37,25],128x72,154,0,8}
+window	0	4	0	:Z	cbc1,282x72,0,0{141x72,0,0,9,140x72,142,0,10}
+window	0	5	0	:	5e00,282x72,0,0,11
+window	0	6	0	:	5e01,282x72,0,0,12
+window	0	7	0	:	5e06,282x72,0,0,17
+window	0	8	0	:	de01,282x72,0,0,22
+window	0	9	1	:*	40b5,282x72,0,0{141x72,0,0,28,140x72,142,0,29}
+state	0	
