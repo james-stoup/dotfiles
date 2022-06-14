@@ -44,19 +44,61 @@
 ;;-------------------------------------------------------------------------------------------
 ;; HELM
 ;;-------------------------------------------------------------------------------------------
+;; (use-package helm
+;;   :ensure t
+;;   :after (company)
+;;   :bind (
+;;          ("M-x" . helm-M-x)
+;;          :map ac-complete-mode-map
+;;          ("C-:" . ac-complete-with-helm)
+;;          :map company-mode-map
+;;          ("C-:" . helm-company)
+;;          :map company-active-map
+;;          ("C-:" . helm-company)
+;;          )
+;;   )
+
+
 (use-package helm
   :ensure t
-  :after (company)
-
-  :bind (("M-x" . helm-M-x)
-         :map ac-complete-mode-map
-         ("C-:" . ac-complete-with-helm)
-         :map company-mode-map
-         ("C-:" . helm-company)
-         :map company-active-map
-         ("C-:" . helm-company)
-         )
+  :init 
+  (helm-mode 1)
+  (progn (setq helm-buffers-fuzzy-matching t))
+  :bind
+  (("C-c h" . helm-command-prefix))
+  (("M-x" . helm-M-x))
+  (("C-x C-f" . helm-find-files))
+  (("C-x b" . helm-buffers-list))
+  (("C-c b" . helm-bookmarks))
+  (("C-c f" . helm-recentf))   ;; Add new key to recentf
+  (("C-c g" . helm-grep-do-git-grep))  ;; Search using grep in a git project
   )
+
+;; Describe keyboard bindings
+(use-package helm-descbinds
+  :ensure t
+  :bind ("C-h b" . helm-descbinds)
+  )
+
+
+;;-------------------------------------------------------------------------------------------
+;; Debug Adapter Protocol (DAP)
+;;-------------------------------------------------------------------------------------------
+(use-package dap-mode
+  :ensure t
+  :after (lsp-mode)
+  :functions dap-hydra/nil
+  :config
+  ;;(require 'dap-java)
+  :bind (:map lsp-mode-map
+         ("<f5>" . dap-debug)
+         ("M-<f5>" . dap-hydra))
+  :hook ((dap-mode . dap-ui-mode)
+    (dap-session-created . (lambda (&_rest) (dap-hydra)))
+    (dap-terminated . (lambda (&_rest) (dap-hydra/nil)))))
+
+;;(use-package dap-java :ensure nil)
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -111,7 +153,7 @@
 
 ;; Symbol highlighting
 (require 'auto-highlight-symbol)
-(global-auto-highlight-symbol-mode t)
+;;(global-auto-highlight-symbol-mode t) ;; breaks string replace/match/clobbered
 (require 'highlight-parentheses)
 
 (global-set-key (kbd "C-?") 'flymake-show-diagnostics-buffer)
@@ -192,7 +234,9 @@
 
 (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
 
-
+;; Markdown flavored Org exporter
+(eval-after-load "org"
+  '(require 'ox-gfm nil t))
 
 ;;;; Agenda hacks ;;;;
 
@@ -463,7 +507,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("m" "Meeting"
          entry (file+datetree "~/org/meetings.org")
-         "* %? :meeting:%^g \n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
+         "* %? :meeting:%^g \n:Created: %T\n** Attendees\n - \n** Notes\n** Action Items\n*** TODO [#A] "
          :tree-type week
          :clock-in t
          :clock-resume t
@@ -491,7 +535,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
         ))
 
 ;; Make org look better
-(setq org-hide-emphasis-markers t)
+;;(setq org-hide-emphasis-markers t)
 
 (let* ((variable-tuple
         (cond ((x-list-fonts "ETBembo")         '(:font "ETBembo"))
@@ -531,6 +575,45 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
 ;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
 ;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+
+
+
+
+
+
+
+
+;;-------------------------------------------------------------------------------------------
+;; LSP
+;;-------------------------------------------------------------------------------------------
+(use-package lsp-mode
+  :ensure t
+  :hook (
+         (lsp-mode . lsp-enable-which-key-integration)
+         (java-mode . #'lsp-deferred)
+         )
+  :init (setq 
+         lsp-keymap-prefix "C-c l"              ; this is for which-key integration documentation, need to use lsp-mode-map
+         lsp-enable-file-watchers nil
+         read-process-output-max (* 1024 1024)  ; 1 mb
+         lsp-completion-provider :capf
+         lsp-idle-delay 0.500
+         )
+  :config 
+  (setq lsp-intelephense-multi-root nil) ; don't scan unnecessary projects
+  (with-eval-after-load 'lsp-intelephense
+    (setf (lsp--client-multi-root (gethash 'iph lsp-clients)) nil))
+  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+  )
+
+(use-package helm-lsp
+  :ensure t
+  :after (lsp-mode)
+  :commands (helm-lsp-workspace-symbol)
+  :init (define-key lsp-mode-map [remap xref-find-apropos] #'helm-lsp-workspace-symbol)
+  )
+
+
 
 
 
@@ -848,8 +931,50 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;;-------------------------------------------------------------------------------------------
 ;; JAVA
 ;;-------------------------------------------------------------------------------------------
+(use-package lsp-java 
+  :ensure t
+  :config (add-hook 'java-mode-hook 'lsp)
+  )
 
 
+;;-------------------------------------------------------------------------------------------
+;; Typescript
+;;-------------------------------------------------------------------------------------------
+(use-package tide :ensure t)
+(use-package company :ensure t)
+(use-package flycheck :ensure t)
+(use-package web-mode :ensure t)
+
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1)
+  ;; company is an optional dependency. You have to
+  ;; install it separately via package-install
+  ;; `M-x package-install [ret] company`
+  (company-mode +1))
+
+;; aligns annotation to the right hand side
+(setq company-tooltip-align-annotations t)
+
+;; formats the buffer before saving
+(add-hook 'before-save-hook 'tide-format-before-save)
+
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
+
+;; tsx files
+(require 'web-mode)
+(add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+(add-hook 'web-mode-hook
+          (lambda ()
+            (when (string-equal "tsx" (file-name-extension buffer-file-name))
+              (setup-tide-mode))))
+
+;; enable typescript - tslint checker
+(flycheck-add-mode 'typescript-tslint 'web-mode)
 
 ;;-------------------------------------------------------------------------------------------
 ;; C#

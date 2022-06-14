@@ -1,0 +1,21 @@
+pane	0	1	:bash	0	:	0	:/home/jstoup/org	0	bash	:
+pane	0	1	:bash	0	:	1	:/home/jstoup/tcs	1	bash	:
+pane	0	2	:april	0	:	0	:/home/jstoup/tools/c2set_scripts	1	bash	:
+pane	0	3	:MSSV	0	:-	0	:/home/jstoup/repos/mssv/dist/target/dist-assembly/tomcat/bin	0	bash	:
+pane	0	3	:MSSV	0	:-	1	:/home/jstoup/tools	1	bash	:
+pane	0	4	:WebUMC	1	:*	0	:/home/jstoup/repos/mssv/dist/target/dist-assembly/tomcat/bin	0	bash	:
+pane	0	4	:WebUMC	1	:*	1	:/home/jstoup/repos/mssv/clients/air-test-driver/target	0	bash	:
+pane	0	4	:WebUMC	1	:*	2	:/home/jstoup/repos/web-umc/server/build/distributions/web-umc-server-6.4.0.0	0	bash	:
+pane	0	4	:WebUMC	1	:*	3	:/home/jstoup/repos/web-umc/web-client/apps/map	1	bash	:
+pane	0	4	:WebUMC	1	:*	4	:/home/jstoup/repos/web-umc	0	bash	:
+pane	0	5	:bash	0	:	0	:/home/jstoup/repos/web-umc/web-client	1	bash	:
+pane	0	5	:bash	0	:	1	:/home/jstoup/tools/bash_colors	0	bash	:
+pane	0	6	:bash	0	:	0	:/home/jstoup/tcs/typescript_test	1	bash	:
+pane	0	6	:bash	0	:	1	:/home/jstoup	0	bash	:
+window	0	1	0	:	d189,254x68,0,0{127x68,0,0,1,126x68,128,0,15}
+window	0	2	0	:	ccff,318x76,0,0,2
+window	0	3	0	:-	2265,254x68,0,0{127x68,0,0,3,126x68,128,0,4}
+window	0	4	1	:*	a399,254x68,0,0{127x68,0,0[127x34,0,0,5,127x33,0,35,6],126x68,128,0[126x34,128,0,7,126x33,128,35{63x33,128,35,8,62x33,192,35,14}]}
+window	0	5	0	:	518b,254x68,0,0{127x68,0,0,9,126x68,128,0,10}
+window	0	6	0	:	8e56,254x68,0,0{127x68,0,0,11,126x68,128,0,12}
+state	0	
