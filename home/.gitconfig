@@ -1,5 +1,5 @@
 [user]
-	email = jrstoup@gmail.com
+	email = jstoup.ctr@kr.af.mil
 	name = James Stoup
 
 [core]
@@ -66,3 +66,5 @@
 
 	# show all tags in a pretty format
 	tags	 = "!f() { git for-each-ref --sort=taggerdate --format=\"%(refname:short)|%(taggerdate:short)|%(taggername)|%(subject)\" refs/tags | column -ts '|'; }; f "
+[pull]
+	ff = only
