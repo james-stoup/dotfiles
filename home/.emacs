@@ -994,3 +994,45 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
+
+
+
+;;-------------------------------------------------------------------------------------------
+;; C++
+;;-------------------------------------------------------------------------------------------
+
+;; Language server
+;; (use-package ccls
+;;   :ensure t
+;;   :config
+;;   (setq ccls-executable "ccls")
+;;   (setq lsp-prefer-flymake nil)
+;;   (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+;;   :hook ((c-mode c++-mode objc-mode) .
+;;          (lambda () (require 'ccls) (lsp))))
+
+;; (add-hook 'after-init-hook 'global-company-mode)
+;; (add-to-list 'company-backends 'company-c-headers)
+
+
+
+;; Compile on f9
+;; (defun code-compile ()
+;;   (interactive)
+;;   (unless (file-exists-p "Makefile")
+;;     (set (make-local-variable 'compile-command)
+;;      (let ((file (file-name-nondirectory buffer-file-name)))
+;;        (format "%s -o %s %s"
+;;            (if  (equal (file-name-extension file) "cpp") "g++" "gcc" )
+;;            (file-name-sans-extension file)
+;;            file)))
+;;     (compile compile-command)))
+;; (global-set-key [f9] 'code-compile)
+
+
+;; Tabs to 4 spaces
+;; (setq-default indent-tabs-mode nil)
+;; (setq-default tab-width 4)
+;; (setq indent-line-function 'insert-tab)
+
+(setq-default c-basic-offset 4)
