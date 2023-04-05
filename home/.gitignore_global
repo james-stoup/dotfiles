@@ -290,3 +290,10 @@ Gemfile.lock
 .solargraph.yml
 
 \#*
+.projectile
+
+
+##########
+#  TMUX  #
+##########
+tmux_resurrect_*.txt

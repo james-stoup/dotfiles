@@ -16,9 +16,14 @@
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
 
+[pull]
+#	rebase = true
+ 	ff = only
+
 [merge]
 	# don't do a fast forward merge
-	ff = false
+        #ff = false
+        rebase = true
 
 [alias]
 	# my most used alias
@@ -66,5 +71,3 @@
 
 	# show all tags in a pretty format
 	tags	 = "!f() { git for-each-ref --sort=taggerdate --format=\"%(refname:short)|%(taggerdate:short)|%(taggername)|%(subject)\" refs/tags | column -ts '|'; }; f "
-[pull]
-	ff = only

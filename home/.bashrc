@@ -44,10 +44,6 @@ alias userlist="eval getent passwd {$(awk '/^UID_MIN/ {print $2}' /etc/login.def
 alias chownjs="sudo chown jstoup:jstoup *"
 alias less='less -R' #need this so colorized text displays correctly
 
-alias im='cd ~/ion-suite/modules/'
-alias sid='ssh ion_dev@james-dev-server'
-alias less='less -R'
-
 ### grepsmall returns just the salient value pulled from grep, not the entire file
 function _grepsmall {
     grep -E -o ".{0,30}$1.{0,30}" * | sed 's/:/:  /'
@@ -62,7 +58,20 @@ function _create_git_branch_and_track {
 }
 alias gitcatlb='_create_git_branch_and_track'
 
+web_umc_version="web-umc-server-6.6.0.0"
+alias start-webumc="cd $HOME/repos/web-umc/server/build/distributions/${web_umc_version}; ./start-web-umc-server.sh"
+alias start-webumc-debug="cd $HOME/repos/web-umc/server/build/distributions/${web_umc_version}; ./start-web-umc-server.sh -d"
+alias print-webumc-ip="echo '/home/jstoup/repos/web-umc/server/build/distributions/${web_umc_version}/install/config/web-umc-server-config.yml'; grep mssvEndpoint /home/jstoup/repos/web-umc/server/build/distributions/${web_umc_version}/install/config/web-umc-server-config.yml"
+alias start-mssv="cd $HOME/repos/mssv/dist; chmod a+x start.sh; ./start.sh"
+alias build-webumc-clean="cd $HOME/repos/web-umc; ./gradlew clean build -P simple --settings-file=simple-settings.gradle; cd $HOME/repos/web-umc/server/build/distributions/; tar -xzf *.tgz; cd -"
+alias build-webumc="cd $HOME/repos/web-umc; ./gradlew build -P simple --settings-file=simple-settings.gradle; cd $HOME/repos/web-umc/server/build/distributions/; tar -xzf *.tgz; cd -"
+alias build-mssv="cd ${HOME}/repos/mssv; ./mvnw clean install -Pdist -DskipTests=true"
 
+function _start_atd() {
+    cd ${HOME}/repos/mssv/clients/air-test-driver/target
+    java -jar airtestdriver-all.jar $1
+}
+alias start-atd='_start_atd'
 
 ##########################
 # GIT PROMPT
@@ -87,6 +96,7 @@ function _git_prompt() {
         if [[ "$git_status" =~ On\ branch\ ([^[:space:]]+) ]]; then
             branch=${BASH_REMATCH[1]}
             test "$branch" != master || branch=' '
+            test "$branch" != main || branch=' '            
         else
             # Detached HEAD.  (branch=HEAD is a faster alternative.)
             branch="(`git describe --all --contains --abbrev=4 HEAD 2> /dev/null ||
@@ -95,8 +105,6 @@ function _git_prompt() {
         echo -n '\[\e[0;37;'"$ansi"';1m\]'"$branch"'\[\e[0m\] '
     fi
 }
-
-
 
 function _prompt_command() {
     PS1="`_git_prompt`(\[\033[0;31m\]\u - \t\[\033[0;30m\])\n  [\[\033[0;34m\]\w\[\033[0;30m\]]\$ " 
@@ -114,3 +122,18 @@ export SDKMAN_DIR="$HOME/.sdkman"
 #LS_COLORS=$LS_COLORS:'di=0;94:' ; export LS_COLORS
 export N_PREFIX="$HOME/.n"
 export PATH="$HOME/.npm/bin:$PATH"
+
+source /opt/rh/devtoolset-10/enable
+export CMAKE_C_COMPILER=/opt/rh/devtoolset-10/root/usr/bin/gcc
+export CMAKE_CXX_COMPILER=/opt/rh/devtoolset-10/root/usr/bin/g++
+
+export AFMSTT_VERSION=latest
+
+
+
+
+
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
