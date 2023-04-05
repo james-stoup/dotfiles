@@ -32,6 +32,28 @@
 (setq tramp-default-method "ssh")
 
 
+
+;;-------------------------------------------------------------------------------------------
+;; STYLYING
+;;-------------------------------------------------------------------------------------------
+;; Set font as Symbola for all unicode characters
+(when (member "Symbola" (font-family-list))
+  (set-fontset-font "fontset-default" nil
+                    (font-spec :size 20 :name "Symbola")))
+(when (member "Symbola" (font-family-list))
+  (set-fontset-font t 'unicode "Symbola" nil 'prepend))
+
+;; Ensure UTF8 encoding
+(prefer-coding-system       'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(setq default-buffer-file-coding-system 'utf-8)
+
+(use-package org-super-agenda)
+
+
+
 ;;-------------------------------------------------------------------------------------------
 ;; MODELINE
 ;;-------------------------------------------------------------------------------------------
@@ -135,7 +157,7 @@
 ;; DEFAULTS
 ;;-------------------------------------------------------------------------------------------
 ;; better defaults
-(require 'better-defaults)
+(use-package better-defaults)
 (menu-bar-mode t)
 
 (setq column-number-mode t
@@ -152,9 +174,9 @@
 (setq w32-lwindow-modifier 'super) ; Left Windows key
 
 ;; Symbol highlighting
-(require 'auto-highlight-symbol)
+(use-package auto-highlight-symbol)
 ;;(global-auto-highlight-symbol-mode t) ;; breaks string replace/match/clobbered
-(require 'highlight-parentheses)
+(use-package highlight-parentheses)
 
 (global-set-key (kbd "C-?") 'flymake-show-diagnostics-buffer)
 
@@ -173,9 +195,8 @@
 (add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
 
 ;; Replace package manager with something better
-(require 'paradox)
+(use-package paradox)
 (paradox-enable)
-(setq paradox-github-token "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")
 
 ;; Adding pretty icons
 ;;(mode-icons-mode) ;; don't like the icon for ruby, change that if I decide to keep this
@@ -207,7 +228,7 @@
 ;;-------------------------------------------------------------------------------------------
 ;; ORG MODE
 ;;-------------------------------------------------------------------------------------------
-(require 'org)
+(use-package org)
 (add-hook 'org-mode-hook (lambda () (org-autolist-mode)))
 (setq jiralib-url "https://cybercents.atlassian.net/")
 
@@ -226,6 +247,7 @@
 (define-key org-mode-map (kbd "C-c <up>") 'org-priority-up)
 (define-key org-mode-map (kbd "C-c <down>") 'org-priority-down)
 (define-key org-mode-map (kbd "C-c C-g C-r") 'org-shiftmetaright)
+(define-key org-mode-map (kbd "C-c C-g C-l") 'org-shiftmetaleft)
 
 ;; Shortcuts
 (define-key global-map "\C-cl" 'org-store-link)
@@ -235,10 +257,13 @@
 (setq org-columns-default-format "%50ITEM(Task) %10CLOCKSUM %16TIMESTAMP_IA")
 
 ;; Markdown flavored Org exporter
+(use-package ox-gfm)
 (eval-after-load "org"
   '(require 'ox-gfm nil t))
 
 ;;;; Agenda hacks ;;;;
+;; I don't like how this looks
+;;(add-hook 'org-agenda-finalize-hook 'org-timeline-insert-timeline :append)
 
 ;; Agenda View "d"
 (defun air-org-skip-subtree-if-priority (priority)
@@ -507,7 +532,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("m" "Meeting"
          entry (file+datetree "~/org/meetings.org")
-         "* %? :meeting:%^g \n:Created: %T\n** Attendees\n - \n** Notes\n** Action Items\n*** TODO [#A] "
+         "* %? :meeting:%^g \n** Attendees\n - \n** Notes\n** Action Items\n*** TODO [#A] "
          :tree-type week
          :clock-in t
          :clock-resume t
@@ -525,8 +550,8 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
          :empty-lines 0)
 
         ("t" "Ticket"
-         entry (file+headline "~/org/tickets.org" "Tickets")
-         "* TODO [#B] %? %^g\nCreated: %T\n** Jira Link: \n** Notes\n** Status\n - [ ] Research\n - [ ] PR\n - [ ] Verifying\n** Subtasks"
+         entry (file "~/org/tickets.org")
+         "* TODO [#B] %? %^g\nCreated: %T\n** Jira Link: \n** Research\n** Solution\n** Subtasks"
          :empty-lines 0)
 
         ("p" "Sprint"
@@ -536,7 +561,59 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 ;; Make org look better
 ;;(setq org-hide-emphasis-markers t)
+;; (setq org-fontify-done-headline t
+;;       org-hide-leading-stars t
+;;       org-pretty-entities t)
 
+;; Improve the lists
+(setq org-list-demote-modify-bullet
+      (quote (
+              ("+" . "-")
+              ("-" . "+")
+              ("*" . "-")
+              ("1." . "-")
+              ("1)" . "-")
+              ("A)" . "-")
+              ("B)" . "-")
+              ("a)" . "-")
+              ("b)" . "-")
+              ("A." . "-")
+              ("B." . "-")
+              ("a." . "-")
+              ("b." . "-")
+              )
+             )
+      )
+
+;; Change the background color of code blocks
+(use-package color)
+(set-face-attribute 'org-block nil :background
+                    (color-lighten-name
+                     (face-attribute 'default :background) 5)) ; lighten the color by 5%
+
+;; Tweak the start/end lines for a block
+(custom-set-faces
+ '(org-block-begin-line
+   ((t (
+        ;;:underline "#0096BF"
+        :foreground "#0096BF"
+        ;;:background "#303030"
+        :weight bold
+        :extend t
+        ))))
+ '(org-block-end-line
+   ((t (
+        ;;:underline "#0096BF"
+        :foreground "#0096BF"
+        ;;:background "#303030"
+        :weight bold        
+        :extend t        
+        ))))
+ )
+
+
+
+;; Add some fonts
 (let* ((variable-tuple
         (cond ((x-list-fonts "ETBembo")         '(:font "ETBembo"))
               ((x-list-fonts "Source Sans Pro") '(:font "Source Sans Pro"))
@@ -561,26 +638,67 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 (add-hook 'org-mode-hook 'visual-line-mode)
 
-;; (custom-theme-set-faces
-;;  'user
-;;  '(org-block ((t (:inherit fixed-pitch))))
-;;  '(org-code ((t (:inherit (shadow fixed-pitch)))))
-;;  '(org-document-info ((t (:foreground "dark orange"))))
-;;  '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-;;  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
-;;  '(org-link ((t (:foreground "royal blue" :underline t))))
-;;  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-;;  '(org-property-value ((t (:inherit fixed-pitch))) t)
-;;  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
-;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+;; Adding org babel languages
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((shell      . t)
+   (js         . t)
+   (emacs-lisp . t)
+   (perl       . t)
+   (clojure    . t)
+   (python     . t)
+   (ruby       . t)
+   (dot        . t)
+   (css        . t)
+   (plantuml   . t)
+   )
+ )
 
 
+;;-------------------------------------------------------------------------------------------
+;; Code Folding
+;;-------------------------------------------------------------------------------------------
+(defun hs-cycle (&optional level)
+  (interactive "p")
+  (let (message-log-max
+        (inhibit-message t))
+    (if (= level 1)
+        (pcase last-command
+          ('hs-cycle
+           (hs-hide-level 1)
+           (setq this-command 'hs-cycle-children))
+          ('hs-cycle-children
+           ;; TODO: Fix this case. `hs-show-block' needs to be
+           ;; called twice to open all folds of the parent
+           ;; block.
+           (save-excursion (hs-show-block))
+           (hs-show-block)
+           (setq this-command 'hs-cycle-subtree))
+          ('hs-cycle-subtree
+           (hs-hide-block))
+          (_
+           (if (not (hs-already-hidden-p))
+               (hs-hide-block)
+             (hs-hide-level 1)
+             (setq this-command 'hs-cycle-children))))
+      (hs-hide-level level)
+      (setq this-command 'hs-hide-level))))
 
+(defun hs-global-cycle ()
+  (interactive)
+  (pcase last-command
+    ('hs-global-cycle
+     (save-excursion (hs-show-all))
+     (setq this-command 'hs-global-show))
+    (_ (hs-hide-all))))
 
+;; (add-hook 'hs-minor-mode
+;;           (lambda ()
+;;             (local-set-key (kbd "<C-tab>") 'hs-global-cycle)
+;;             )
+;;           )
 
-
+(global-set-key (kbd "<C-tab>") 'hs-cycle)
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -620,7 +738,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;;-------------------------------------------------------------------------------------------
 ;; SOLARGRAPH
 ;;-------------------------------------------------------------------------------------------
-(require 'lsp-mode)
+(use-package lsp-mode)
 (add-hook 'ruby-mode-hook #'lsp)
 (global-set-key (kbd "C-c h h") 'lsp-describe-thing-at-point)
 
@@ -658,10 +776,10 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 		     ruby-test-mode
 		     ))
 
-(require 'rubocopfmt)
-(require 'yaml-mode)
-(require 'seeing-is-believing)
-(require 'ruby-test-mode)
+(use-package rubocopfmt)
+(use-package yaml-mode)
+(use-package seeing-is-believing)
+(use-package ruby-test-mode)
 
 ;; RVM
 (rvm-use-default)
@@ -712,7 +830,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
      (kbd "C-c C-s") 'inf-ruby-console-auto))
 
 ;; auto complete
-(require 'ac-inf-ruby) ;; when not installed via package.el
+(use-package ac-inf-ruby) ;; when not installed via package.el
 (eval-after-load 'auto-complete
   '(add-to-list 'ac-modes 'inf-ruby-mode))
 (add-hook 'inf-ruby-mode-hook 'ac-inf-ruby-enable)
@@ -728,12 +846,12 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
   '(define-key inf-ruby-mode-map (kbd "TAB") 'auto-complete))
 
 ;; syntax checking in ruby
-(require 'flymake-ruby)
+(use-package flymake-ruby)
 (add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
 ;; Smart Parens
-(require 'smartparens-config)
-(require 'smartparens-ruby)
+(use-package smartparens)
+;;(use-package smartparens-ruby)
 (smartparens-global-mode)
 (show-smartparens-global-mode t)
 (sp-with-modes '(rhtml-mode)
@@ -742,7 +860,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
 
 ;; Flyspell (spell check)
-(require 'flyspell)
+(use-package flyspell)
 (setq flyspell-issue-message-flg nil)
 (add-hook 'enh-ruby-mode-hook
           (lambda () (flyspell-prog-mode)))
@@ -752,7 +870,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; flyspell mode breaks auto-complete mode without this.
 (ac-flyspell-workaround)
 
-(require 'flyspell-correct-helm)
+(use-package flyspell-correct-helm)
 ;;(define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-wrapper)
 
 
@@ -807,14 +925,14 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
                           (require 'lsp-pyright)
                           (lsp))))  ; or lsp-deferred
 
-(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
-(setq py-autopep8-options '("--max-line-length=120"))
+;;(add-hook 'python-mode-hook 'py-autopep8-enable-on-save)
+;;(setq py-autopep8-options '("--max-line-length=120"))
 
 ;; Blacken
 (add-hook 'python-mode-hook 'blacken-mode)
 
 ;; Import sorter
-(require 'pyimpsort)
+(use-package pyimpsort)
 (eval-after-load 'python
   '(define-key python-mode-map "\C-c\C-u" #'pyimpsort-buffer))
 
@@ -869,7 +987,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;; PLANT UML
 ;;-------------------------------------------------------------------------------------------
 (with-eval-after-load 'flycheck
-  (require 'flycheck-plantuml)
+  (use-package flycheck-plantuml)
   (flycheck-plantuml-setup))
 
 ;; Sample jar configuration
@@ -961,12 +1079,12 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 (setq company-tooltip-align-annotations t)
 
 ;; formats the buffer before saving
-(add-hook 'before-save-hook 'tide-format-before-save)
+;;(add-hook 'before-save-hook 'tide-format-before-save)
 
 (add-hook 'typescript-mode-hook #'setup-tide-mode)
 
 ;; tsx files
-(require 'web-mode)
+(use-package web-mode)
 (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
 (add-hook 'web-mode-hook
           (lambda ()
