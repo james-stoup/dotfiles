@@ -103,7 +103,7 @@
       show-paren-mode 1)
 
 ;; show line numbers
-(global-linum-mode)
+;;(global-linum-mode)
 
 ;; make PC keyboard's Win key or other to type Super or Hyper, for emacs running on Windows.
 (setq w32-pass-lwindow-to-system nil)
@@ -854,13 +854,13 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;;-------------------------------------------------------------------------------------------
 ;; C#
 ;;-------------------------------------------------------------------------------------------
-(use-package omnisharp
-  :after company
-  :config
-  (add-hook 'csharp-mode-hook 'omnisharp-mode)
-  (add-to-list 'company-backends 'company-omnisharp))
+;; (use-package omnisharp
+;;   :after company
+;;   :config
+;;   (add-hook 'csharp-mode-hook 'omnisharp-mode)
+;;   (add-to-list 'company-backends 'company-omnisharp))
 
-(add-hook 'csharp-mode-hook 'flycheck-mode)
+;; (add-hook 'csharp-mode-hook 'flycheck-mode)
 
 
 ;;-------------------------------------------------------------------------------------------
