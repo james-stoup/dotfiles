@@ -103,7 +103,9 @@
       show-paren-mode 1)
 
 ;; show line numbers
-;;(global-linum-mode)
+(when (version<= "26.0.50" emacs-version )
+  (global-display-line-numbers-mode))
+
 
 ;; make PC keyboard's Win key or other to type Super or Hyper, for emacs running on Windows.
 (setq w32-pass-lwindow-to-system nil)
@@ -448,12 +450,12 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
       '(
         ("c" "Code To-Do"
          entry (file+headline "~/org/todos.org" "Code Related Tasks")
-         "* TODO [#B] %? :broken_code:%^g\n:Created: %T\n%i\n%a\n"
+         "* TODO [#B] %? :broken_code:%^g\n%i\n%a\n"
          :empty-lines 0)
 
         ("g" "General To-Do"
          entry (file+headline "~/org/todos.org" "General Tasks")
-         "* TODO [#B] %? :general:%^g\n:Created: %T\n"
+         "* TODO [#B] %? :general:%^g\n"
          :empty-lines 0)
 
         ("j" "Work Journal Entry"
@@ -463,7 +465,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("m" "Meeting"
          entry (file+datetree "~/org/meetings.org")
-         "* %? :meeting:%^g \n:Created: %T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
+         "* %? :meeting:%^g \n** Attendees\n - \n** Notes\n** Action Items\n*** TODO [#A] "
          :tree-type week
          :clock-in t
          :clock-resume t
@@ -471,7 +473,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("s" "Scheduled Meeting"
          entry (file+datetree "~/org/meetings.org")
-         "* %? :meeting:%^g \nMeetingTime: %^{MeetingTime}T\n** Attendees\n*** \n** Notes\n** Action Items\n*** TODO [#A] "
+         "* %? :meeting:%^g \nMeetingTime: %^{MeetingTime}T\n** Attendees\n -  \n** Notes\n** Action Items\n*** TODO [#A] "
          :tree-type week
          :empty-lines 0)
         
@@ -487,7 +489,7 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 
         ("p" "Sprint"
          entry (file "~/org/sprints.org" )
-         "** TODO Sprint %?\n:Created: %T\nSCHEDULED: %T\nDEADLINE: %T\n*** Workload\n- [ ]\n*** Points ")
+         "** TODO Sprint %?\nSCHEDULED: %T\nDEADLINE: %T\n*** Workload\n- [ ]\n*** Points ")
         ))
 
 ;; Make org look better
@@ -869,3 +871,35 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
+
+
+;;-------------------------------------------------------------------------------------------
+;; Typescript
+;;-------------------------------------------------------------------------------------------
+(use-package typescript-mode
+  :ensure t)
+
+;; (use-package tree-sitter
+;;   :ensure t)
+
+;; (use-package tree-sitter-langs
+;;   :ensure t)
+
+(use-package dap-mode
+  :ensure t)
+
+;; Activate tree-sitter globally (minor mode registered on every buffer)
+;; (global-tree-sitter-mode)
+;; (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+
+(add-hook 'typescript-mode-hook 'lsp-deferred)
+(add-hook 'javascript-mode-hook 'lsp-deferred)
+
+;; (defun my-setup-dap-node ()
+;;   "Require dap-node feature and run dap-node-setup if VSCode module isn't already installed"
+;;   (require 'dap-node)
+;;   (unless (file-exists-p dap-node-debug-path) (dap-node-setup)))
+
+;; (add-hook 'typescript-mode-hook 'my-setup-dap-node)
+;; (add-hook 'javascript-mode-hook 'my-setup-dap-node)
+
