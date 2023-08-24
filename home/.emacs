@@ -31,6 +31,23 @@
 
 (setq tramp-default-method "ssh")
 
+(use-package paredit
+  :ensure t)
+
+(use-package all-the-icons
+  :if (display-graphic-p))
+
+(use-package emacs
+  :init
+  (set-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8-unix)
+  (setq confirm-kill-processes nil)		; Stop confirming the killing of processes
+  (setq use-short-answers t)                    ; y-or-n-p makes answering questions faster
+  (setq read-process-output-max (* 1024 1024))  ; Increase the amount of data which Emacs reads from the process
+  (global-hl-line-mode 1)			; Highlight the current line to make it more visible
+  )
+
+
 
 ;;-------------------------------------------------------------------------------------------
 ;; MODELINE
@@ -41,22 +58,37 @@
 
 (setq doom-modeline-buffer-file-name-style 'file-name)
 
+(use-package company
+  :ensure t
+  )
+
+
 ;;-------------------------------------------------------------------------------------------
 ;; HELM
 ;;-------------------------------------------------------------------------------------------
+(helm-icons-enable)
+
 (use-package helm
   :ensure t
-  :after (company)
-
-  :bind (("M-x" . helm-M-x)
-         :map ac-complete-mode-map
-         ("C-:" . ac-complete-with-helm)
-         :map company-mode-map
-         ("C-:" . helm-company)
-         :map company-active-map
-         ("C-:" . helm-company)
-         )
+  :init
+  (helm-mode 1)
+  (progn (setq helm-buffers-fuzzy-matching t))
+  :bind
+  (("C-c h" . helm-command-prefix))
+  (("M-x" . helm-M-x))
+  (("C-x C-f" . helm-find-files))
+  (("C-x b" . helm-buffers-list))
+  (("C-c b" . helm-bookmarks))
+  (("C-c f" . helm-recentf))   ;; Add new key to recentf
+  (("C-c g" . helm-grep-do-git-grep))  ;; Search using grep in a git project
   )
+
+;; Describe keyboard bindings
+(use-package helm-descbinds
+  :ensure t
+  :bind ("C-h b" . helm-descbinds)
+  )
+
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -92,8 +124,14 @@
 ;;-------------------------------------------------------------------------------------------
 ;; DEFAULTS
 ;;-------------------------------------------------------------------------------------------
+;; Start with the window maximized
+(toggle-frame-maximized)
+
 ;; better defaults
-(require 'better-defaults)
+(use-package better-defaults
+  :ensure t
+  )
+
 (menu-bar-mode t)
 
 (setq column-number-mode t
@@ -126,7 +164,16 @@
 ;; Company mode
 (add-hook 'after-init-hook 'global-company-mode)
 
+
+(use-package which-key
+  :ensure t
+  )
 (which-key-mode)
+
+(use-package comment-tags
+  :ensure t
+  )
+
 (comment-tags-mode)
 
 ;; Make things colorful
@@ -142,6 +189,12 @@
 
 ;; Auto format on save
 (format-all-mode)
+
+;; Navigate split windows using SHIFT + ARROW KEY
+(windmove-default-keybindings)
+
+;; Default to y/n instead of yes/no
+(defalias 'yes-or-no-p 'y-or-n-p)
 
 
 ;;-------------------------------------------------------------------------------------------
@@ -161,6 +214,9 @@
 ;;-------------------------------------------------------------------------------------------
 ;; ELisp
 ;;-------------------------------------------------------------------------------------------
+(use-package highlight-defined
+  :ensure t
+  )
 (add-hook 'emacs-lisp-mode-hook 'highlight-defined-mode)
 
 
@@ -533,6 +589,99 @@ PRIORITY may be one of the characters ?A, ?B, or ?C."
 ;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
 ;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
 ;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+
+;; Adding org babel languages
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((shell      . t)
+   (js         . t)
+   (emacs-lisp . t)
+   (perl       . t)
+   (clojure    . t)
+   (python     . t)
+   (ruby       . t)
+   (dot        . t)
+   (css        . t)
+   (plantuml   . t)
+   )
+ )
+
+;; For Markdown conversion
+(use-package grip-mode
+  :ensure t
+  :bind (:map markdown-mode-command-map
+              ("g" . grip-mode)))
+
+(setq org-tags-match-list-sublevels nil)
+
+
+;; Tag magic
+;; Courtesy of https://blog.aaronbieber.com/2016/03/05/playing-tag-in-org-mode.html
+
+;; Swap Tags
+(defun air--org-swap-tags (tags)
+  "Replace any tags on the current headline with TAGS.
+
+The assumption is that TAGS will be a string conforming to Org Mode's
+tag format specifications, or nil to remove all tags."
+  (let ((old-tags (org-get-tags-string))
+        (tags (if tags
+                  (concat " " tags)
+                "")))
+    (save-excursion
+      (beginning-of-line)
+      (re-search-forward
+       (concat "[ \t]*" (regexp-quote old-tags) "[ \t]*$")
+       (line-end-position) t)
+      (replace-match tags)
+      (org-set-tags t))))
+
+;; Set Tags
+(defun air-org-set-tags (tag)
+  "Add TAG if it is not in the list of tags, remove it otherwise.
+
+TAG is chosen interactively from the global tags completion table."
+  (interactive
+   (list (let ((org-last-tags-completion-table
+                (if (derived-mode-p 'org-mode)
+                    (org-uniquify
+                     (delq nil (append (org-get-buffer-tags)
+                                       (org-global-tags-completion-table))))
+                  (org-global-tags-completion-table))))
+           (org-icompleting-read
+            "Tag: " 'org-tags-completion-function nil nil nil
+            'org-tags-history))))
+  (let* ((cur-list (org-get-tags))
+         (new-tags (mapconcat 'identity
+                              (if (member tag cur-list)
+                                  (delete tag cur-list)
+                                (append cur-list (list tag)))
+                              ":"))
+         (new (if (> (length new-tags) 1) (concat " :" new-tags ":")
+                nil)))
+    (air--org-swap-tags new)))
+
+
+;;-------------------------------------------------------------------------------------------
+;; MARKDOWN
+;;-------------------------------------------------------------------------------------------
+(use-package markdown-mode
+  :ensure t
+  :defer t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :custom
+  (markdown-fontify-code-blocks-natively t)
+  (markdown-command "pandoc")
+  :defines markdown-mode-map
+  ;; I use those bindings for window movement
+  :bind (:map markdown-mode-map
+	      ("C-c <left>" . nil)
+	      ("C-c <right>" . nil)
+	      ("C-c <up>" . nil)
+	      ("C-c <down>" . nil)))
 
 
 
